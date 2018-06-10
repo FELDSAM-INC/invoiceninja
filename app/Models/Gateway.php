@@ -53,6 +53,7 @@ class Gateway extends Eloquent
         GATEWAY_CUSTOM1,
         GATEWAY_CUSTOM2,
         GATEWAY_CUSTOM3,
+        GATEWAY_FIO,
     ];
 
     // allow adding these gateway if another gateway
@@ -67,6 +68,7 @@ class Gateway extends Eloquent
         GATEWAY_CUSTOM1,
         GATEWAY_CUSTOM2,
         GATEWAY_CUSTOM3,
+        GATEWAY_FIO,
     ];
 
     /**

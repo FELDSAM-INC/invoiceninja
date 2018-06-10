@@ -344,6 +344,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_PAYMILL', 66);
     define('GATEWAY_CUSTOM2', 67);
     define('GATEWAY_CUSTOM3', 68);
+    define('GATEWAY_FIO', 69);
 
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers

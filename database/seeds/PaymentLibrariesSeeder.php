@@ -77,6 +77,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'PAYMILL', 'provider' => 'Paymill'],
             ['name' => 'Custom', 'provider' => 'Custom2', 'is_offsite' => true, 'sort_order' => 21],
             ['name' => 'Custom', 'provider' => 'Custom3', 'is_offsite' => true, 'sort_order' => 22],
+            ['name' => 'Fio Bank Payeeze', 'provider' => 'FioBankPayeezy', 'is_offsite' => true],
         ];
 
         foreach ($gateways as $gateway) {
