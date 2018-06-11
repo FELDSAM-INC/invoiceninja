@@ -183,7 +183,7 @@ class OnlinePaymentController extends BaseController
 
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
-        if ($error = Input::get('error_description') ?: Input::get('error')) {
+        if ($error = Input::get('error_description')) {
             return $this->error($paymentDriver, $error);
         }
 
