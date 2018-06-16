@@ -173,7 +173,7 @@
                 {!! Button::normal(trans('texts.download'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
 				<span class="require-authorization">
 	                @if (count($paymentTypes) > 1)
-	                    {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
+	                    {!! DropdownButton::success(trans('texts.pay_now'))->alignRight()->withContents($paymentTypes)->large() !!}
 	                @elseif (count($paymentTypes) == 1)
 	                    <a href='{{ $paymentURL }}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {!! $invoice->present()->gatewayFee($gatewayTypeId) !!}</a>
 	                @endif
