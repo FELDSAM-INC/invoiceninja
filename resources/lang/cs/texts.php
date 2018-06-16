@@ -1398,7 +1398,7 @@ $LANG = array(
 
     'update_font_cache' => 'Please force refresh the page to update the font cache.',
     'more_options' => 'More options',
-    'credit_card' => 'Credit Card',
+    'credit_card' => 'Kartou online / Credit Card',
     'bank_transfer' => 'Bank Transfer',
     'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
     'use_bank_on_file' => 'Use Bank on File',
