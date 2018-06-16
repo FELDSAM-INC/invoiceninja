@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\MobileLocalization',
         'App\Console\Commands\SendOverdueTickets',
         'App\Console\Commands\FioPayeezeClose',
+        'App\Console\Commands\CheckEuVat',
         'App\Console\Commands\MakeModuleSettings',
     ];
 
