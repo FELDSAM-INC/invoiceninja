@@ -58,5 +58,10 @@ class Kernel extends ConsoleKernel
             ->command('ninja:send-reminders')
             ->sendOutputTo($logFile)
             ->daily();
+
+        $schedule
+            ->command('ninja:check-eu-vat')
+            ->sendOutputTo($logFile)
+            ->daily();
     }
 }
