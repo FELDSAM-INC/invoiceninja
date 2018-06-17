@@ -255,6 +255,8 @@ class InvoiceController extends BaseController
     private static function getViewModel($invoice)
     {
         $account = Auth::user()->account;
+        $account->load('country');
+        $account->loadLocalizationSettings();
 
         $recurringHelp = '';
         $recurringDueDateHelp = '';
@@ -333,7 +335,7 @@ class InvoiceController extends BaseController
 
         return [
             'data' => Input::old('data'),
-            'account' => Auth::user()->account->load('country'),
+            'account' => $account,
             'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $taxRateOptions,
             'sizes' => Cache::get('sizes'),

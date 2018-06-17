@@ -1189,13 +1189,37 @@ class Account extends Eloquent
 
         App::setLocale($locale);
 
-        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
-        if ($this->military_time) {
-            $format = str_replace('g:i a', 'H:i', $format);
+        if($this->datetime_format)
+        {
+            $format = $this->localizeDatetimeFormatByMilitaryDate($this->datetime_format->format);
+            $format_moment = $this->localizeDatetimeFormatByMilitaryDate($this->datetime_format->format_moment, true);
+
+            $this->datetime_format->format = $format;
+            $this->datetime_format->format_moment = $format_moment;
         }
+        else
+        {
+            $format = $this->localizeDatetimeFormatByMilitaryDate(DEFAULT_DATETIME_FORMAT);
+        }
+
         Session::put(SESSION_DATETIME_FORMAT, $format);
 
         Session::put('start_of_week', $this->start_of_week);
+    }
+
+    /**
+     * @param $format
+     * @param bool $isMoment
+     * @return string
+     */
+    protected function localizeDatetimeFormatByMilitaryDate($format, $isMoment = false)
+    {
+        if($isMoment)
+        {
+            return strtr($format, array('h:' => 'H:', ' a' => ''));
+        }
+
+        return str_replace('g:i a', 'H:i', $format);
     }
 
     /**
