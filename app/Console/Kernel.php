@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\SendOverdueTickets',
         'App\Console\Commands\FioPayeezeClose',
         'App\Console\Commands\CheckEuVat',
+        'App\Console\Commands\ImportFioBankPayments',
         'App\Console\Commands\MakeModuleSettings',
     ];
 
@@ -63,5 +64,10 @@ class Kernel extends ConsoleKernel
             ->command('ninja:check-eu-vat')
             ->sendOutputTo($logFile)
             ->daily();
+
+        $schedule
+            ->command('ninja:import-fio-bank-payments')
+            ->sendOutputTo($logFile)
+            ->hourly();
     }
 }

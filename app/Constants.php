@@ -463,6 +463,7 @@ if (! defined('APP_NAME')) {
     define('TOKEN_BILLING_ALWAYS', 4);
 
     define('PAYMENT_TYPE_CREDIT', 1);
+    define('PAYMENT_TYPE_BANK_TRANSFER', 2);
     define('PAYMENT_TYPE_ACH', 5);
     define('PAYMENT_TYPE_VISA', 6);
     define('PAYMENT_TYPE_MASTERCARD', 7);
