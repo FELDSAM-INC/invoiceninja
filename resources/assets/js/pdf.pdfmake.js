@@ -616,14 +616,14 @@ NINJA.signature = function(invoice) {
             "stack": [
                 {
                     "image": "$signatureBase64",
-                    "margin": [200, 10, 0, 0]
+                    "fit": [150, 100]
                 },
                 {
                     "canvas": [{
                         "type": "line",
-                        "x1": 200,
+                        "x1": 0,
                         "y1": -25,
-                        "x2": 504,
+                        "x2": 150,
                         "y2": -25,
                         "lineWidth": 1,
                         "lineColor": "#888888"
@@ -631,7 +631,7 @@ NINJA.signature = function(invoice) {
                 },
                 {
                     "text": [invoiceLabels.date, ": ", "$signatureDate"],
-                    "margin": [200, -20, 0, 0]
+                    "margin": [100, -20, 0, 0]
                 }
             ]
         };
