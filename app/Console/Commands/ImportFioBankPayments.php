@@ -6,8 +6,12 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\DocumentRepository;
+use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\DatatableService;
+use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\TemplateService;
 use FioApi\Transaction;
@@ -37,6 +41,16 @@ class ImportFioBankPayments extends Command
     protected $paymentService;
 
     /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepository;
+
+    /**
+     * @var InvoiceService
+     */
+    protected $invoiceService;
+
+    /**
      * @var ContactMailer
      */
     protected $contatMailer;
@@ -60,8 +74,9 @@ class ImportFioBankPayments extends Command
     {
         parent::__construct();
 
-
         $this->paymentService                = new PaymentService(new PaymentRepository, new AccountRepository, new DatatableService);
+        $this->invoiceRepository             = new InvoiceRepository($this->paymentService, new DocumentRepository, new PaymentRepository);
+        $this->invoiceService                = new InvoiceService(new ClientRepository, $this->invoiceRepository, new DatatableService);
         $this->contatMailer                  = new ContactMailer(new TemplateService);
         $this->token                         = env('FIO_API_TOKEN');
         $this->variableSymbolCustomFieldName = env('INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME');
@@ -167,6 +182,11 @@ class ImportFioBankPayments extends Command
 
         // invoice not found, so continue to next payment
         if( ! $invoice) return false;
+
+        // check if invoice is quote and if is, them convert it
+        if($invoice->isQuote()) {
+            $invoice = $this->invoiceService->convertQuote($invoice);
+        }
 
         // check payment has been marked sent
         $invoice->markSentIfUnsent();
