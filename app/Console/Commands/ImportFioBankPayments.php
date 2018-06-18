@@ -24,7 +24,7 @@ class ImportFioBankPayments extends Command
     /**
      * @var string
      */
-    protected $name = 'ninja:import-fio-bank-payments';
+    protected $name = 'ninja:import-fio-bank-payments {--email-receipt=}';
 
     /**
      * @var string
@@ -83,6 +83,8 @@ class ImportFioBankPayments extends Command
     {
         $this->info(date('r') . ' Loading payments...');
 
+        $emailReceipt = (bool) $this->option('email-receipt');
+
         try
         {
             $downloader = new \FioApi\Downloader($this->token);
@@ -92,7 +94,7 @@ class ImportFioBankPayments extends Command
             {
                 $payment = $this->processTransaction($transaction);
 
-                if($payment)
+                if($payment && $emailReceipt)
                 {
                     $this->contatMailer->sendPaymentConfirmation($payment);
                 }
@@ -236,6 +238,8 @@ class ImportFioBankPayments extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['email-receipt', null, InputOption::VALUE_OPTIONAL, 'Email Receipt', false],
+        ];
     }
 }
