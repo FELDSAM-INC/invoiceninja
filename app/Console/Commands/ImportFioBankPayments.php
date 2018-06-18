@@ -5,15 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
-use App\Ninja\Repositories\AccountRepository;
-use App\Ninja\Repositories\ClientRepository;
-use App\Ninja\Repositories\DocumentRepository;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Services\DatatableService;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
-use App\Services\TemplateService;
 use FioApi\Transaction;
 use Illuminate\Console\Command;
 use Auth;
@@ -41,11 +34,6 @@ class ImportFioBankPayments extends Command
     protected $paymentService;
 
     /**
-     * @var InvoiceRepository
-     */
-    protected $invoiceRepository;
-
-    /**
      * @var InvoiceService
      */
     protected $invoiceService;
@@ -70,14 +58,17 @@ class ImportFioBankPayments extends Command
      */
     protected $variableSymbolCustomFieldName;
 
-    public function __construct()
+    public function __construct(PaymentService $paymentService, InvoiceService $invoiceService, ContactMailer $contactMailer)
     {
         parent::__construct();
 
-        $this->paymentService                = new PaymentService(new PaymentRepository, new AccountRepository, new DatatableService);
-        $this->invoiceRepository             = new InvoiceRepository($this->paymentService, new DocumentRepository, new PaymentRepository);
-        $this->invoiceService                = new InvoiceService(new ClientRepository, $this->invoiceRepository, new DatatableService);
-        $this->contatMailer                  = new ContactMailer(new TemplateService);
+        $this->paymentService = $paymentService;
+        $this->invoiceService = $invoiceService;
+        $this->contatMailer   = $contactMailer;
+    }
+
+    public function fire()
+    {
         $this->token                         = env('FIO_API_TOKEN');
         $this->variableSymbolCustomFieldName = env('INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME');
 
@@ -92,10 +83,7 @@ class ImportFioBankPayments extends Command
             $this->error(date('r') . ' There is no invoice custom field for use as variable symbol set. Please set it in .env file INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME={custom_field_name}');
             exit(1);
         }
-    }
 
-    public function fire()
-    {
         $this->info(date('r') . ' Loading payments...');
 
         $emailReceipt = (bool) $this->option('email-receipt');
@@ -192,16 +180,16 @@ class ImportFioBankPayments extends Command
         $invoice->markSentIfUnsent();
 
         $paymentData = array(
-            'amount' => $transaction->getAmount(),
-            'payment_type_id' => PAYMENT_TYPE_BANK_TRANSFER,
-            'payment_date_sql' => $transaction->getDate()->format('Y-m-d'),
+            'amount'                => $transaction->getAmount(),
+            'payment_type_id'       => PAYMENT_TYPE_BANK_TRANSFER,
+            'payment_date_sql'      => $transaction->getDate()->format('Y-m-d'),
             'transaction_reference' => $this->getTransactionSummary($transaction, false),
-            'private_notes' => $hash,
-            'convert_currency' => 0,
-            'exchange_currency_id' => '',
-            'exchange_rate' => '',
-            'invoice_id' => $invoice->id,
-            'client_id' => $invoice->client_id,
+            'private_notes'         => $hash,
+            'convert_currency'      => 0,
+            'exchange_currency_id'  => '',
+            'exchange_rate'         => '',
+            'invoice_id'            => $invoice->id,
+            'client_id'             => $invoice->client_id,
         );
 
         // login as invoice user
