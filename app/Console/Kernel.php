@@ -66,6 +66,11 @@ class Kernel extends ConsoleKernel
             ->daily();
 
         $schedule
+            ->command('ninja:fiopayeezy-close')
+            ->sendOutputTo($logFile)
+            ->daily();
+
+        $schedule
             ->command('ninja:import-fio-bank-payments --email-receipt=true')
             ->sendOutputTo($logFile)
             ->hourly();
