@@ -51,28 +51,28 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('ninja:send-invoices')
-            ->sendOutputTo($logFile)
+            ->appendOutputTo($logFile)
             ->withoutOverlapping()
             ->hourly();
 
         $schedule
             ->command('ninja:send-reminders')
-            ->sendOutputTo($logFile)
+            ->appendOutputTo($logFile)
             ->daily();
 
         $schedule
             ->command('ninja:check-eu-vat')
-            ->sendOutputTo($logFile)
+            ->appendOutputTo($logFile)
             ->daily();
 
         $schedule
             ->command('ninja:fiopayeezy-close')
-            ->sendOutputTo($logFile)
+            ->appendOutputTo($logFile)
             ->daily();
 
         $schedule
             ->command('ninja:import-fio-bank-payments --email-receipt=true')
-            ->sendOutputTo($logFile)
+            ->appendOutputTo($logFile)
             ->hourly();
     }
 }
