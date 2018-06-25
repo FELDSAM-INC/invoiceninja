@@ -36,6 +36,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\CheckEuVat',
         'App\Console\Commands\ImportFioBankPayments',
         'App\Console\Commands\MakeModuleSettings',
+        'App\Console\Commands\ImportToggle',
     ];
 
     /**

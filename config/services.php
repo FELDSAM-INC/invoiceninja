@@ -66,4 +66,9 @@ return [
         'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
     ],
 
+    'toggl' => [
+        'workspace'     => env('TOGGL_WORKSPACE'),
+        'token'         => env('TOGGL_TOKEN'),
+    ],
+
 ];
