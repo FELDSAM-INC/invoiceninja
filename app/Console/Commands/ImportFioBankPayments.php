@@ -186,8 +186,8 @@ class ImportFioBankPayments extends Command
             'transaction_reference' => $this->getTransactionSummary($transaction, false),
             'private_notes'         => $hash,
             'convert_currency'      => 0,
-            'exchange_currency_id'  => '',
-            'exchange_rate'         => '',
+            'exchange_currency_id'  => 0,
+            'exchange_rate'         => 1,
             'invoice_id'            => $invoice->id,
             'client_id'             => $invoice->client_id,
         );
