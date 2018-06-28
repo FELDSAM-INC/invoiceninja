@@ -255,7 +255,7 @@ class SendReminders extends Command
 
                 foreach ($data->rates as $code => $rate) {
                     if($recalculate) {
-                        $rate = 1 / $data->rates->{$base} * $rate;
+                        $rate = $data->rates->{$base} * 1 / $rate;
                     }
 
                     Currency::whereCode($code)->update(['exchange_rate' => $rate]);
