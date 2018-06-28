@@ -37,6 +37,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\ImportFioBankPayments',
         'App\Console\Commands\MakeModuleSettings',
         'App\Console\Commands\ImportToggle',
+        'App\Console\Commands\ConvertClientsCurrency',
     ];
 
     /**
