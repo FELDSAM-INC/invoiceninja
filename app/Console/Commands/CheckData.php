@@ -615,7 +615,6 @@ class CheckData extends Command
             $this->isValid = false;
         }
 
-        /*
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
                 DB::table('clients')
@@ -623,7 +622,6 @@ class CheckData extends Command
                     ->update(['paid_to_date' => $client->amount]);
             }
         }
-        */
     }
 
     private function checkInvoiceBalances()
@@ -638,12 +636,20 @@ class CheckData extends Command
                     ->where('invoices.updated_at', '>', '2017-10-01')
                     ->groupBy('invoices.id')
                     ->havingRaw('(invoices.amount - invoices.balance) != coalesce(sum(payments.amount - payments.refunded), 0)')
-                    ->get(['invoices.id', 'invoices.amount', 'invoices.balance', DB::raw('coalesce(sum(payments.amount - payments.refunded), 0)')]);
+                    ->get(['invoices.id', 'invoices.amount', 'invoices.balance', DB::raw('coalesce(invoices.amount - sum(payments.amount - payments.refunded), 0) as realAmount')]);
 
         $this->logMessage($invoices->count() . ' invoices with incorrect balances');
 
         if ($invoices->count() > 0) {
             $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($invoices as $invoice) {
+                DB::table('invoices')
+                    ->where('id', $invoice->id)
+                    ->update(['balance' => $invoice->realAmount]);
+            }
         }
     }
 
