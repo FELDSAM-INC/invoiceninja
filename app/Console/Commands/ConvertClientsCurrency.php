@@ -88,6 +88,9 @@ class ConvertClientsCurrency extends Command
         // sanatize exchange rate
         $exchange_rate = str_replace(',', '.', $exchange_rate);
 
+        // convert exchange rate
+        $exchange_rate = round(1 / $exchange_rate, 4);
+
         // get items
         $items = $invoice->invoice_items()->get();
 
@@ -96,8 +99,8 @@ class ConvertClientsCurrency extends Command
         $invoiceAmount = 0;
         foreach ($items as $item)
         {
-            $cost = round($item->cost / $exchange_rate, 2);
-            $invoiceAmount += $item->cost / $exchange_rate * $item->qty;
+            $cost = round($item->cost * $exchange_rate, 2);
+            $invoiceAmount += $item->cost * $exchange_rate * $item->qty;
 
             DB::table('invoice_items')
                 ->where('id', $item->id)
@@ -105,7 +108,7 @@ class ConvertClientsCurrency extends Command
         }
 
         // calculate invoice discount and amount
-        $discount      = round($invoice->discount / $exchange_rate, 2);
+        $discount      = round($invoice->discount * $exchange_rate, 2);
         $invoiceAmount = round($invoiceAmount * (1 + $invoice->tax_rate1 / 100) - $discount, 2);
 
         // update payments
@@ -138,7 +141,7 @@ class ConvertClientsCurrency extends Command
         $totalAmount = 0;
         foreach ($payments as $payment)
         {
-            $amount = round($payment->amount / $exchange_rate, 2);
+            $amount = round($payment->amount * $exchange_rate, 2);
 
             $totalAmount += $amount;
 
@@ -146,7 +149,7 @@ class ConvertClientsCurrency extends Command
                 ->where('id', $payment->id)
                 ->update([
                     'amount' => $amount,
-                    'exchange_rate' => $exchange_rate,
+                    'exchange_rate' => round(1 / $exchange_rate, 4), // reverse exchange rate
                     'exchange_currency_id' => 51, // CZK - base currency
                 ]);
         }
