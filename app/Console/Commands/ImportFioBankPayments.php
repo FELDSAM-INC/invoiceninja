@@ -10,6 +10,7 @@ use App\Services\PaymentService;
 use FioApi\Transaction;
 use Illuminate\Console\Command;
 use Auth;
+use DB;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -160,12 +161,17 @@ class ImportFioBankPayments extends Command
         }
 
         // search invoice if VS provided
-        if( ! $transaction->getVariableSymbol()) return false;
+        if( ! $vs = $transaction->getVariableSymbol()) return false;
+
+        $vsCustomFieldName = $this->variableSymbolCustomFieldName;
 
         // search for invoice
         $invoice = Invoice::whereNotIn('invoice_status_id', array(INVOICE_STATUS_DRAFT, INVOICE_STATUS_PAID))
             ->where('is_deleted', '!=', 1)
-            ->where($this->variableSymbolCustomFieldName, $transaction->getVariableSymbol())
+            ->where(function (&$query) use($vsCustomFieldName, $vs) {
+                $query->where($vsCustomFieldName, $vs)
+                    ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $vs);
+            })
             ->first();
 
         // invoice not found, so continue to next payment
