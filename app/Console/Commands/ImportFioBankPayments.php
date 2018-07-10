@@ -160,17 +160,17 @@ class ImportFioBankPayments extends Command
             return null;
         }
 
-        // search invoice if VS provided
-        if( ! $vs = $transaction->getVariableSymbol()) return false;
+        // search invoice if reference is provided
+        if( ! $reference = $this->getTransactionReference($transaction)) return false;
 
         $vsCustomFieldName = $this->variableSymbolCustomFieldName;
 
         // search for invoice
         $invoice = Invoice::whereNotIn('invoice_status_id', array(INVOICE_STATUS_DRAFT, INVOICE_STATUS_PAID))
             ->where('is_deleted', '!=', 1)
-            ->where(function (&$query) use($vsCustomFieldName, $vs) {
-                $query->where($vsCustomFieldName, $vs)
-                    ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $vs);
+            ->where(function (&$query) use($vsCustomFieldName, $reference) {
+                $query->where($vsCustomFieldName, $reference)
+                    ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $reference);
             })
             ->first();
 
@@ -234,9 +234,25 @@ class ImportFioBankPayments extends Command
         if($transaction->getSpecificSymbol()) $result .= 'SS: '.$transaction->getSpecificSymbol()."\n";
 
         $result .= 'Date: '.$transaction->getDate()->format('Y-m-d')."\n";
+        $result .= 'ID: '.$transaction->getId()."\n";
         if($includeHash) $result .= 'Hash: '.$hash."\n\n";
 
         return $result;
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @return string
+     */
+    protected function getTransactionReference(Transaction $transaction)
+    {
+        if( ! $reference = $transaction->getVariableSymbol())
+        {
+            $reference = $transaction->getUserMessage();
+        }
+
+        // sanitize
+        return preg_replace('/[^0-9]/', '', $reference);
     }
 
     /**
