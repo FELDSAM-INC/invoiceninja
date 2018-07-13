@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
@@ -12,6 +13,7 @@ use Illuminate\Console\Command;
 use Auth;
 use DB;
 use Mail;
+use App;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -174,8 +176,11 @@ class ImportFioBankPayments extends Command
             })
             ->first();
 
-        // invoice not found, so continue to next payment
-        if( ! $invoice) return false;
+        // invoice not found or can not convert amount, so continue to next payment
+        if( ! $invoice || ! $transactionAmountData = $this->getTransactionAmountData($invoice, $transaction)) return false;
+
+        // assign data to vars
+        list($convert_currency, $exchange_currency_id, $exchange_rate, $amount) = $transactionAmountData;
 
         // check if invoice is quote and if is, them convert it
         if($invoice->isQuote()) {
@@ -186,14 +191,14 @@ class ImportFioBankPayments extends Command
         $invoice->markSentIfUnsent();
 
         $paymentData = array(
-            'amount'                => $transaction->getAmount(),
+            'amount'                => $amount,
             'payment_type_id'       => PAYMENT_TYPE_BANK_TRANSFER,
             'payment_date_sql'      => $transaction->getDate()->format('Y-m-d'),
             'transaction_reference' => $this->getTransactionSummary($transaction, false),
             'private_notes'         => $hash,
-            'convert_currency'      => 0,
-            'exchange_currency_id'  => 0,
-            'exchange_rate'         => 1,
+            'convert_currency'      => $convert_currency,
+            'exchange_currency_id'  => $exchange_currency_id,
+            'exchange_rate'         => round(1 / $exchange_rate, 4),
             'invoice_id'            => $invoice->id,
             'client_id'             => $invoice->client_id,
         );
@@ -209,6 +214,79 @@ class ImportFioBankPayments extends Command
         Auth::logout();
 
         return $payment;
+    }
+
+    /**
+     * Check invoice currency and convert amount if needed
+     *
+     * @param Invoice       $invoice
+     * @param Transaction   $transaction
+     * @return bool|array   $convert_currency, $exchange_currency_id, $exchange_rate, $amount
+     */
+    protected function getTransactionAmountData(Invoice $invoice, Transaction $transaction)
+    {
+        $account = $invoice->account()->first();
+        $invoiceCurrency = $invoice->client()->first()->currency()->first();
+
+        // nothing to do
+        if($account->currency_id === $invoiceCurrency->id)
+        {
+            return array(0, 0, 1, $transaction->getAmount());
+        }
+
+        if(! $invoiceExchangeRate = $this->getInvoiceExchangeRate($account, $invoice))
+        {
+            return false;
+        }
+
+        $actualExchangeRate = $invoiceCurrency->exchange_rate;
+
+        // convert amount
+        $amount = $transaction->getAmount() * $actualExchangeRate;
+
+        // received amount is not equal to balance
+        // calculate allowed diff from total amount
+        // get percentual diff from exchange rates + add small 0,5%
+        $percentualDiff = abs(1 - $actualExchangeRate / $invoiceExchangeRate) + 0.005;
+        $allowedDiff    = $amount * $percentualDiff;
+
+        // is withing allowed diff
+        // this can happen due to exchange rates floating
+        if($amount < $invoice->balance && $amount >= $invoice->balance - $allowedDiff || $amount > $invoice->balance && $amount <= $invoice->balance + $allowedDiff)
+        {
+            // return with corrected exchange rate
+            return array(1, $account->currency_id, ($invoice->balance / $transaction->getAmount()), $invoice->balance);
+        }
+
+        // if received amount is much greater that balance, just return a let payment create with credit
+        // or if amount is equal or much less that invoice balance
+        return array(1, $account->currency_id, $actualExchangeRate, $amount);
+    }
+
+    /**
+     * Get invoice exchange rate
+     *
+     * @param Account $account
+     * @param Invoice $invoice
+     * @return bool|string
+     */
+    protected function getInvoiceExchangeRate(Account $account, Invoice $invoice)
+    {
+        App::setLocale($account->language()->first()->locale);
+
+        $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
+
+        if($exchangeRateTranslation == strtolower($account->custom_fields->invoice_text1))
+        {
+            return $invoice->custom_text_value1;
+        }
+
+        if($exchangeRateTranslation == strtolower($account->custom_fields->invoice_text2))
+        {
+            return $invoice->custom_text_value2;
+        }
+
+        return false;
     }
 
     /**
