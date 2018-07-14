@@ -490,6 +490,8 @@ class InvoiceRepository extends BaseRepository
             } elseif (isset($data['due_date'])) {
                 $invoice->due_date = $data['due_date'];
             }
+
+            $invoice->recurring_invoice_type = $data['recurring_invoice_type'];
         } else {
             if ($isNew && empty($data['due_date']) && empty($data['due_date_sql'])) {
                 // do nothing

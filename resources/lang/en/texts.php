@@ -959,6 +959,8 @@ $LANG = array(
           <li>Today is the Friday, due date is the 1st Friday after. The due date will be next Friday, not today.
 </li>
         </ul>',
+    'recurring_invoice_type' => 'Type of recurring invoice',
+    'recurring_invoice_type_help' => 'What invoice type should be created on recurrence? When you select "Quote", them autobill will not work!',
     'due' => 'Due',
     'next_due_on' => 'Due Next: :date',
     'use_client_terms' => 'Use client terms',
