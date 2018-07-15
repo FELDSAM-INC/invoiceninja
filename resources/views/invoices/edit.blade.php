@@ -274,12 +274,6 @@
                         {{trans('texts.opted_out')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(true)}">({{trans('texts.enable')}})</a>
                     </div>
                 </div>
-				{!! Former::select('recurring_invoice_type')
-                                ->label('recurring_invoice_type')
-                                ->addOption(trans('texts.invoice'), INVOICE_TYPE_STANDARD)
-                                ->addOption(trans('texts.quote'), INVOICE_TYPE_QUOTE)
-								->data_bind("value: recurring_invoice_type")
-                                ->help('recurring_invoice_type_help') !!}
             </span>
             @endif
 			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
