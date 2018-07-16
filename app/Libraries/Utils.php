@@ -1233,13 +1233,22 @@ class Utils
         }
     }
 
-    public static function getCustomLabel($value)
+    public static function getCustomLabel($value, $locale = null)
     {
+        $name = $value;
         if (strpos($value, '|') !== false) {
-            return explode('|', $value)[0];
-        } else {
-            return $value;
+            $name = explode('|', $value)[0];
         }
+
+        if (preg_match_all('/\{([^}]+):([^}]+)\}/', $name, $m)) {
+            $key = array_search($locale, $m[1]);
+
+            if ($key !== false) {
+               return $m[2][$key];
+            }
+        }
+
+        return $name;
     }
 
     public static function getCustomValues($value)

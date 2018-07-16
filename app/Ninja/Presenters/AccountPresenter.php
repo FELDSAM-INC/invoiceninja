@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
+use App;
 use Carbon;
 use Domain;
 use App\Models\TaxRate;
@@ -267,6 +268,6 @@ class AccountPresenter extends Presenter
 
     public function customLabel($field)
     {
-        return Utils::getCustomLabel($this->entity->customLabel($field));
+        return Utils::getCustomLabel($this->entity->customLabel($field), App::getLocale());
     }
 }

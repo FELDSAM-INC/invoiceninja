@@ -2039,6 +2039,20 @@ class Account extends Eloquent
         return true;
         //return ! $this->country_id || $this->country_id == DEFAULT_COUNTRY;
     }
+
+    public function toArray() {
+        $array = parent::toArray();
+
+        $locale = App::getLocale();
+
+        if (isset($array['custom_fields'])) {
+            foreach (array('invoice_text1', 'invoice_text2') as $field) {
+                $array['custom_fields']->{$field} = Utils::getCustomLabel($array['custom_fields']->{$field}, $locale);
+            }
+        }
+
+        return $array;
+    }
 }
 
 Account::creating(function ($account)
