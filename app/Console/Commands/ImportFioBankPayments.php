@@ -94,7 +94,7 @@ class ImportFioBankPayments extends Command
         try
         {
             $downloader = new \FioApi\Downloader($this->token);
-            $transactionList = $downloader->downloadLast();
+            $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-12 hours'));
 
             foreach ($transactionList->getTransactions() as $transaction)
             {
