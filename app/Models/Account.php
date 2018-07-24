@@ -2047,6 +2047,7 @@ class Account extends Eloquent
 
         if (isset($array['custom_fields'])) {
             foreach (array('invoice_text1', 'invoice_text2') as $field) {
+                if(!isset($array['custom_fields']->{$field})) continue;
                 $array['custom_fields']->{$field} = Utils::getCustomLabel($array['custom_fields']->{$field}, $locale);
             }
         }
