@@ -66,6 +66,7 @@ class DashboardController extends BaseController
         $averageInvoiceTotal = $invoiceTotalCount ? ($invoiceTotal / $invoiceTotalCount) : 0;
 
         // calculate balances totals
+        $moneyUtils = new MoneyUtils;
         $balancesTotals = 0;
         $currencies = [];
         foreach ($balances as $item) {
