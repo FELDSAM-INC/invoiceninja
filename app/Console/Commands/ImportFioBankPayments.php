@@ -327,6 +327,12 @@ class ImportFioBankPayments extends Command
         if( ! $reference = $transaction->getVariableSymbol())
         {
             $reference = $transaction->getUserMessage();
+
+            // try to extract VS
+            if(preg_match('/VS([0-9]+)/', $reference, $m))
+            {
+                return $m[1];
+            }
         }
 
         // sanitize
