@@ -246,8 +246,8 @@ class ImportFioBankPayments extends Command
 
         // received amount is not equal to balance
         // calculate allowed diff from total amount
-        // get percentual diff from exchange rates + add small 0,5%
-        $percentualDiff = abs(1 - $actualExchangeRate / $invoiceExchangeRate) + 0.005;
+        // get percentual diff from exchange rates + add small 3%
+        $percentualDiff = abs(1 - $actualExchangeRate / $invoiceExchangeRate) + 0.03;
         $allowedDiff    = $amount * $percentualDiff;
 
         // is withing allowed diff
