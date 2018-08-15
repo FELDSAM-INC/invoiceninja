@@ -229,7 +229,7 @@ class ImportFioBankPayments extends Command
         $invoiceCurrency = $invoice->client()->first()->currency()->first();
 
         // nothing to do
-        if($account->currency_id === $invoiceCurrency->id)
+        if($invoiceCurrency === null || $account->currency_id === $invoiceCurrency->id)
         {
             return array(0, 0, 1, $transaction->getAmount());
         }
