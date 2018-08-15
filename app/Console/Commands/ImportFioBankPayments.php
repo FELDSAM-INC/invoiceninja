@@ -115,6 +115,7 @@ class ImportFioBankPayments extends Command
         catch(\Exception $e)
         {
             $this->error(date('r') . ' ' . $e->getMessage());
+            $this->error(date('r') . ' ' . $e->getTraceAsString());
             exit(1);
         }
 
