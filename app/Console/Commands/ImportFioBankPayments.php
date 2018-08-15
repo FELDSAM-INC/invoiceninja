@@ -156,6 +156,9 @@ class ImportFioBankPayments extends Command
         // skip tax returns
         if($transaction->getConstantSymbol() == '4146') return null;
 
+        // skip HoppyGo payments
+        if($transaction->getVariableSymbol() == '4677946') return null;
+
         // check if payment already exists
         if($payment = Payment::where('private_notes', $hash)->first())
         {
