@@ -162,6 +162,9 @@ class ImportFioBankPayments extends Command
         // skip HoppyGo payments
         if($transaction->getVariableSymbol() == '4677946') return null;
 
+        // skip one time payment
+        if($transaction->getId() == '17694406216') return null;
+
         // check if payment already exists
         if($payment = Payment::where('private_notes', $hash)->first())
         {
