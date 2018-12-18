@@ -8,7 +8,6 @@ use DragonBe\Vies\Vies;
 use DragonBe\Vies\ViesException;
 use DragonBe\Vies\ViesServiceException;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 
 class InvalidVatNumberException extends \Exception {};
 
@@ -91,6 +90,10 @@ class CheckEuVat extends Command
 
                     // number has invalid format, so update client notes
                     $this->updateClientWithInvalidNumberFormat($client, $e->getMessage());
+                }
+                catch (\Exception $e)
+                {
+                    $this->warn(date('r') . ' ' . $e->getMessage(). ' on ' . $client->vat_number);
                 }
             }
         }
