@@ -101,9 +101,17 @@ class CheckEuVat extends Command
 
     protected function updateClientWithValidNumber(Client $client)
     {
-        $language = $client->language()->firstOrFail();
+        $language = $client->language()->first();
 
-        $terms = (isset(self::$euVatTerms[$language->locale])) ? self::$euVatTerms[$language->locale] : self::$euVatTerms['en'];
+        // if there is no lang, use CS
+        if($language)
+        {
+            $terms = (isset(self::$euVatTerms[$language->locale])) ? self::$euVatTerms[$language->locale] : self::$euVatTerms['en'];
+        }
+        else
+        {
+            $terms = self::$euVatTerms['cs'];
+        }
 
         $client->public_notes = $terms;
         $client->save();
