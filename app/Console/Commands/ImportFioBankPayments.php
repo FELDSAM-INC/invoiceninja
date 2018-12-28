@@ -164,6 +164,7 @@ class ImportFioBankPayments extends Command
 
         // skip one time payment
         if($transaction->getId() == '17694406216') return null;
+        if($transaction->getId() == '17724783278') return null;
 
         // check if payment already exists
         if($payment = Payment::where('private_notes', $hash)->where('is_deleted', '!=', 1)->first())
