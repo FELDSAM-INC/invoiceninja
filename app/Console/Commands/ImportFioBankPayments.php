@@ -341,7 +341,7 @@ class ImportFioBankPayments extends Command
             $reference = $transaction->getUserMessage();
 
             // try to extract VS
-            if(preg_match('/VS([0-9]{7,10})|([0-9]{7,10})|([0-9]{6}-[0-9]{1,3})/', $reference, $m))
+            if(preg_match('/SP[^0-9]*([0-9]{2,10})|VS([0-9]{1,10})|([0-9]{6}-[0-9]{1,3})/', $reference, $m))
             {
                 $reference = $m[0];
             }
