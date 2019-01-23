@@ -1,6 +1,7 @@
 <?php
 namespace Omnipay\FioBankPayeezy\Message;
 
+use App\Models\Currency;
 use DB;
 
 /**
@@ -12,12 +13,21 @@ class PurchaseRequest extends AbstractRequest
 {
     public function getData()
     {
-        $this->validate('cert', 'certPass', 'amount', 'description', 'returnUrl');
+        $this->validate('cert', 'certPass', 'convertCurrency', 'amount', 'description', 'returnUrl');
+
+        $amount   = $this->getAmountInteger();
+        $currency = $this->currencyCodes[$this->getCurrency()];
+
+        if ($this->getConvertCurrency() && $this->getBaseCurrencyCode() !== $this->getCurrency()) {
+            $exchangeRate = Currency::where('code', $this->getCurrency())->first()->exchange_rate;
+            $amount = ceil($this->getAmountInteger() / $exchangeRate);
+            $currency = $this->currencyCodes[$this->getBaseCurrencyCode()];
+        }
 
         $data = array(
             'command'        => 'v',
-            'amount'         => $this->getAmountInteger(),
-            'currency'       => $this->currencyCodes[$this->getCurrency()],
+            'amount'         => $amount,
+            'currency'       => $currency,
             'client_ip_addr' => $this->getClientIp(),
             'description'    => $this->getDescription(),
             'language'       => 'cz',

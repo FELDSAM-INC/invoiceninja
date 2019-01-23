@@ -54,6 +54,10 @@ class AccountGatewayController extends BaseController
 
         if (! $accountGateway->isCustom()) {
             foreach ($config as $field => $value) {
+                if ($accountGateway->gateway_id === GATEWAY_FIO && $field === 'baseCurrencyCode') {
+                    $config->$field = $value;
+                    continue;
+                }
                 $config->$field = str_repeat('*', strlen($value));
             }
         }
@@ -256,6 +260,9 @@ class AccountGatewayController extends BaseController
                         $value = $oldConfig->$field;
                     }
                     if (! $value && in_array($field, ['testMode', 'developerMode', 'sandbox'])) {
+                        // do nothing
+                    }
+                    else if (! $value && $gatewayId == GATEWAY_FIO && $field === 'convertCurrency') {
                         // do nothing
                     } else {
                         $config->$field = $value;

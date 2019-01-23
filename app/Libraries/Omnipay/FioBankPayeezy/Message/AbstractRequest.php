@@ -9,6 +9,8 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
         'prod' => 'https://secureshop.firstdata.lv:8443/ecomm/MerchantHandler',
     );
 
+    protected $baseCurrencyCode = 'CZK';
+
     protected $currencyCodes = array(
         'CZK' => '203',
         'EUR' => '978',
@@ -56,6 +58,40 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
     public function setCertPass($value)
     {
         return $this->setParameter('certPass', $value);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getConvertCurrency()
+    {
+        return $this->getParameter('convertCurrency');
+    }
+
+    /**
+     * @param  bool $value
+     * @return $this
+     */
+    public function setConvertCurrency($value)
+    {
+        return $this->setParameter('convertCurrency', $value);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getBaseCurrencyCode()
+    {
+        return $this->getParameter('baseCurrencyCode');
+    }
+
+    /**
+     * @param  bool $value
+     * @return $this
+     */
+    public function setBaseCurrencyCode($value)
+    {
+        return $this->setParameter('baseCurrencyCode', $value);
     }
 
     protected function sendRequest($data)
