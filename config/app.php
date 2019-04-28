@@ -163,7 +163,6 @@ return [
         PragmaRX\Google2FALaravel\ServiceProvider::class,
         'Chumper\Datatable\DatatableServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
-        Ixudra\Toggl\TogglServiceProvider::class,
 
 
         /*
@@ -278,7 +277,6 @@ return [
         'CurlUtils' => App\Libraries\CurlUtils::class,
         'Domain' => App\Constants\Domain::class,
         'Google2FA' => PragmaRX\Google2FALaravel\Facade::class,
-        'Toggl'     => Ixudra\Toggl\Facades\Toggl::class,
 
     ],
 
