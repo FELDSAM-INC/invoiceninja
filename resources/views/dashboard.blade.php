@@ -295,7 +295,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <div class="panel panel-default">
+        <div class="panel panel-default dashboard-totals">
             <div class="panel-body revenue-panel">
                 <div style="overflow:hidden">
                     <div class="{{ $headerClass }}">
@@ -330,7 +330,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="panel panel-default">
+        <div class="panel panel-default dashboard-totals">
             <div class="panel-body expenses-panel">
                 <div style="overflow:hidden">
                     @if ($showExpenses)
@@ -386,7 +386,7 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="panel panel-default">
+        <div class="panel panel-default dashboard-totals">
             <div class="panel-body outstanding-panel">
                 <div style="overflow:hidden">
                     <div class="{{ $headerClass }}">

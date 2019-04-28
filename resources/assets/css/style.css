@@ -551,6 +551,8 @@ background-clip: padding-box;
 
 .dashboard .panel-body {padding: 0;}
 
+.dashboard-totals .panel-body .in-bold {font-size: 18px;}
+
 .dashboard th {
 border-left: none;
     background-color: #fbfbfb;
