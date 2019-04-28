@@ -123,6 +123,16 @@ class InvoiceController extends BaseController
             while ($invoice->expenses->count()) {
                 $invoice->expenses->pop();
             }
+
+            // update exchange rate
+            $invoiceCurrency = $invoice->client()->first()->currency()->first();
+            if ($invoiceCurrency &&
+                $account->currency_id !== $invoiceCurrency->id &&
+                $exchangeRateFieldIndex = $account->getInvoiceExchangeRateCustomFieldIndex()
+            ) {
+                $invoice->{'custom_text_value'.$exchangeRateFieldIndex} =  $invoiceCurrency->exchange_rate;
+            }
+
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
