@@ -59,7 +59,7 @@
         "omnipay/authorizenet": "dev-solution-id as 2.5.0",
         "omnipay/firstdata": "^2.4",
         "omnipay/payfast": "dev-master",
-        "patricktalmadge/bootstrapper": "5.5.x",
+        "patricktalmadge/bootstrapper": "dev-dropdown-menu-right",
         "pragmarx/google2fa-laravel": "^0.1.2",
         "predis/predis": "^1.1",
         "roave/security-advisories": "dev-master",
@@ -152,6 +152,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/davidbankes/omnipay-firstdata.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/FELDSAM-INC/bootstrapper"
         }
     ]
 }

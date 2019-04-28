@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07da35713054e38327764c53183d3eb0",
+    "content-hash": "1aac90b22b09aa6c9f60abbc4c244a64",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -3144,12 +3144,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "b5fbb742af122b565925987e65c08957739976a7"
+                "reference": "801d776b4e4c9fce294d800974266c616bb2ce40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/b5fbb742af122b565925987e65c08957739976a7",
-                "reference": "b5fbb742af122b565925987e65c08957739976a7",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/801d776b4e4c9fce294d800974266c616bb2ce40",
+                "reference": "801d776b4e4c9fce294d800974266c616bb2ce40",
                 "shasum": ""
             },
             "require": {
@@ -3164,8 +3164,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Google\\Protobuf\\": "php/src/Google/Protobuf",
-                    "GPBMetadata\\Google\\Protobuf\\": "php/src/GPBMetadata/Google/Protobuf"
+                    "Google\\Protobuf\\": "src/Google/Protobuf",
+                    "GPBMetadata\\Google\\Protobuf\\": "src/GPBMetadata/Google/Protobuf"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -3177,7 +3177,7 @@
             "keywords": [
                 "proto"
             ],
-            "time": "2018-03-06T03:54:18+00:00"
+            "time": "2019-02-25T22:48:13+00:00"
         },
         {
             "name": "grpc/grpc",
@@ -3597,53 +3597,6 @@
                 "stream"
             ],
             "time": "2014-10-12T19:18:40+00:00"
-        },
-        {
-            "name": "illuminate/html",
-            "version": "v5.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/illuminate/html.git",
-                "reference": "3d1009bb8e0f25720c914af5c1f4015dd373c9ef"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/html/zipball/3d1009bb8e0f25720c914af5c1f4015dd373c9ef",
-                "reference": "3d1009bb8e0f25720c914af5c1f4015dd373c9ef",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/http": "~5.0",
-                "illuminate/session": "~5.0",
-                "illuminate/support": "~5.0",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Illuminate\\Html\\": ""
-                },
-                "files": [
-                    "helpers.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylorotwell@gmail.com"
-                }
-            ],
-            "abandoned": "laravelcollective/html",
-            "time": "2015-01-01T16:31:18+00:00"
         },
         {
             "name": "intervention/image",
@@ -7967,50 +7920,57 @@
         },
         {
             "name": "patricktalmadge/bootstrapper",
-            "version": "5.5.3",
+            "version": "dev-dropdown-menu-right",
             "source": {
                 "type": "git",
-                "url": "https://github.com/patricktalmadge/bootstrapper.git",
-                "reference": "0c5d5199c887f8a730899963be37a055d1d5ba29"
+                "url": "https://github.com/FELDSAM-INC/bootstrapper.git",
+                "reference": "59ace3acb90457de201cc9bb5d0d2bd2e856ecfb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/patricktalmadge/bootstrapper/zipball/0c5d5199c887f8a730899963be37a055d1d5ba29",
-                "reference": "0c5d5199c887f8a730899963be37a055d1d5ba29",
+                "url": "https://api.github.com/repos/FELDSAM-INC/bootstrapper/zipball/59ace3acb90457de201cc9bb5d0d2bd2e856ecfb",
+                "reference": "59ace3acb90457de201cc9bb5d0d2bd2e856ecfb",
                 "shasum": ""
             },
             "require": {
-                "illuminate/config": "~4.2||~5",
-                "illuminate/html": "~4.2||~5",
-                "illuminate/routing": "~4.2||~5",
-                "illuminate/support": "~4.2||~5",
-                "php": ">=5.4.0",
+                "illuminate/config": "~5",
+                "illuminate/routing": "~5",
+                "illuminate/support": "~5",
+                "laravelcollective/html": "^5.4.2",
+                "php": ">=5.6.0",
                 "twbs/bootstrap": "~3"
             },
             "require-dev": {
                 "akeneo/phpspec-skip-example-extension": "~1.1",
                 "mockery/mockery": "~0.9",
-                "phpspec/phpspec": "~2"
+                "phpspec/phpspec": "~2",
+                "squizlabs/php_codesniffer": "~2.3"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Bootstrapper\\BootstrapperL5ServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Bootstrapper\\": "src\\Bootstrapper",
                     "DummyClasses\\": "tests\\DummyClasses"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
-                    "name": "Maxime Fabre",
-                    "email": "ehtnam6@gmail.com"
-                },
-                {
                     "name": "Patrick Talmadge",
                     "email": "ptalmadge@gmail.com"
+                },
+                {
+                    "name": "Maxime Fabre",
+                    "email": "ehtnam6@gmail.com"
                 },
                 {
                     "name": "Patrick Rose",
@@ -8022,7 +7982,10 @@
                 "bootstrap",
                 "laravel"
             ],
-            "time": "2015-02-28T17:09:35+00:00"
+            "support": {
+                "source": "https://github.com/FELDSAM-INC/bootstrapper/tree/feldsam/dropdown-menu-right"
+            },
+            "time": "2018-06-16T15:18:36+00:00"
         },
         {
             "name": "phenx/php-font-lib",
@@ -11117,16 +11080,6 @@
                 "php": ">=5.3.0"
             },
             "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Webpatser\\Countries\\CountriesServiceProvider"
-                    ],
-                    "aliases": {
-                        "Countries": "Webpatser\\Countries\\CountriesFacade"
-                    }
-                }
-            },
             "autoload": {
                 "psr-0": {
                     "Webpatser\\Countries": "src/"
@@ -11159,7 +11112,7 @@
                 "iso_3166_3",
                 "laravel"
             ],
-            "time": "2017-10-15T11:08:15+00:00"
+            "time": "2018-06-27T11:58:05+00:00"
         },
         {
             "name": "websight/l5-google-cloud-storage",
@@ -12184,6 +12137,53 @@
             "time": "2017-11-15T11:08:09+00:00"
         },
         {
+            "name": "illuminate/html",
+            "version": "v5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/html.git",
+                "reference": "3d1009bb8e0f25720c914af5c1f4015dd373c9ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/illuminate/html/zipball/3d1009bb8e0f25720c914af5c1f4015dd373c9ef",
+                "reference": "3d1009bb8e0f25720c914af5c1f4015dd373c9ef",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "~5.0",
+                "illuminate/session": "~5.0",
+                "illuminate/support": "~5.0",
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Illuminate\\Html\\": ""
+                },
+                "files": [
+                    "helpers.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylorotwell@gmail.com"
+                }
+            ],
+            "abandoned": "laravelcollective/html",
+            "time": "2015-01-01T16:31:18+00:00"
+        },
+        {
             "name": "phpdocumentor/reflection-common",
             "version": "1.0.1",
             "source": {
@@ -12362,8 +12362,7 @@
             "authors": [
                 {
                     "name": "Chris Boulton",
-                    "homepage": "http://github.com/chrisboulton",
-                    "role": "Original developer"
+                    "homepage": "http://github.com/chrisboulton"
                 }
             ],
             "description": "A comprehensive library for generating differences between two hashable objects (strings or arrays).",
@@ -12898,7 +12897,6 @@
                 "mock",
                 "xunit"
             ],
-            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
@@ -13599,6 +13597,7 @@
         "laravel/socialite": 20,
         "omnipay/authorizenet": 20,
         "omnipay/payfast": 20,
+        "patricktalmadge/bootstrapper": 20,
         "roave/security-advisories": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,
