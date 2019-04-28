@@ -1219,8 +1219,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $sql = implode(' OR ', $dates);
-        $invoices = Invoice::scope()
-                    ->with('client', 'invoice_items')
+        $invoices = Invoice::with('client', 'invoice_items')
                     ->whereHas('client', function ($query) {
                         $query->whereSendReminders(true);
                     })
