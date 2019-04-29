@@ -112,7 +112,15 @@
   var isRefreshing = false;
   var needsRefresh = false;
 
-  function refreshPDF(force) {
+  function refreshPDF(force, manual) {
+    @if ( ! $realtime_preview)
+        if (manual !== true){
+            $('#downloadPdfButton').attr('disabled', false);
+            return;
+        }
+        $('#refreshPdfButton').attr('disabled', true);
+    @endif
+
     try {
         return getPDFString(refreshPDFCB, force);
     } catch (exception) {
@@ -179,6 +187,10 @@
         });
       });
     }
+    $('#downloadPdfButton').attr('disabled', false);
+    @if ( ! $realtime_preview)
+    $('#refreshPdfButton').attr('disabled', false);
+    @endif
   }
 
   function showMoreDesigns() {
