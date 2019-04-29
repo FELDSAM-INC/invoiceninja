@@ -550,7 +550,7 @@
 				@endif
             @else
 				@if (!$invoice->is_deleted)
-					@if ( ! Auth::user()->account->realtime_preview)
+					@if ( ! Auth::user()->account->realtime_preview && Auth::user()->account->live_preview)
 						{!! Button::normal('PDF')->withAttributes(['id' => 'refreshPdfButton', 'onclick' => 'refreshPDF(true,true)'])->appendIcon(Icon::create('refresh')) !!}
 					@endif
 

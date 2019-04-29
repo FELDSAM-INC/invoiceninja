@@ -114,10 +114,7 @@
 
   function refreshPDF(force, manual) {
     @if ( ! $realtime_preview)
-        if (manual !== true){
-            $('#downloadPdfButton').attr('disabled', false);
-            return;
-        }
+        if (manual !== true) return;
         $('#refreshPdfButton').attr('disabled', true);
     @endif
 
@@ -187,7 +184,6 @@
         });
       });
     }
-    $('#downloadPdfButton').attr('disabled', false);
     @if ( ! $realtime_preview)
     $('#refreshPdfButton').attr('disabled', false);
     @endif
