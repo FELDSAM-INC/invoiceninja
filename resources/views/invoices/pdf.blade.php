@@ -113,7 +113,7 @@
   var needsRefresh = false;
 
   function refreshPDF(force, manual) {
-    @if ( ! $realtime_preview)
+    @if (isset($realtime_preview) && ! $realtime_preview)
         if (manual !== true) return;
         $('#refreshPdfButton').attr('disabled', true);
     @endif
@@ -184,7 +184,7 @@
         });
       });
     }
-    @if ( ! $realtime_preview)
+    @if (isset($realtime_preview) && ! $realtime_preview)
     $('#refreshPdfButton').attr('disabled', false);
     @endif
   }
