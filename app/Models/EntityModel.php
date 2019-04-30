@@ -347,6 +347,7 @@ class EntityModel extends Eloquent
             'products' => 'cube',
             'invoices' => 'file-pdf-o',
             'payments' => 'credit-card',
+            'recurring' => 'files-o',
             'recurring_invoices' => 'files-o',
             'recurring_quotes' => 'files-o',
             'recurring_expenses' => 'files-o',

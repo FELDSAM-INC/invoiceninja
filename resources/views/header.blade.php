@@ -419,7 +419,7 @@
                 'invoices',
                 'quotes',
                 'payments',
-                'recurring_quotes' => 'recurring_invoices',
+                'recurring_quotes' => 'recurring',
                 'credits',
                 'proposals',
                 'projects',
