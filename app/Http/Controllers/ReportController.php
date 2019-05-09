@@ -88,6 +88,7 @@ class ReportController extends BaseController
             'task_details',
             'tax_rate',
             'quote',
+            'recurring_quote',
         ];
 
         $params = [
