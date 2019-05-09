@@ -229,7 +229,7 @@ class SendReminders extends Command
             // send email as user
             auth()->onceUsingId($user->id);
 
-            $report = dispatch(new RunReport($scheduledReport->user, $reportType, $config, true));
+            $report = dispatch(new RunReport($scheduledReport->user, $reportType, $config, $account, true));
             $file = dispatch(new ExportReportResults($scheduledReport->user, $config['export_format'], $reportType, $report->exportParams));
 
             if ($file) {
