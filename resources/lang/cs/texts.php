@@ -726,6 +726,7 @@ $LANG = array(
     'pro' => 'Profi',
     'gateways' => 'Platební brány',
     'next_send_on' => 'Další odeslání: :date',
+    'next_send_on_reports' => 'Další odeslání',
     'no_longer_running' => 'Tato faktura není nastavena aby proběhla',
     'general_settings' => 'Obecné nastavení',
     'customize' => 'Přizpůsobení',

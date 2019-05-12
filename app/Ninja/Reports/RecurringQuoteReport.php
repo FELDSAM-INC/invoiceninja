@@ -14,7 +14,7 @@ class RecurringQuoteReport extends AbstractReport
         $columns = [
             'client' => [],
             'quote_number' => [],
-            'quote_date' => [],
+            'next_send_on_reports' => [],
             'frequency' => [],
             'amount' => [],
             'tax_amount' => [],
@@ -57,7 +57,6 @@ class RecurringQuoteReport extends AbstractReport
                             $query->recurringQuote()
                                   ->withArchived()
                                   ->statusIds($statusIds)
-                                  ->where('start_date', '>=', $this->startDate)
                                   ->where('start_date', '<=', $this->endDate)
                                   ->with(['invoice_items', 'invoice_status', 'frequency']);
                         }]);
@@ -84,14 +83,23 @@ class RecurringQuoteReport extends AbstractReport
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
 
+                $startDate = $account->getDateTime($invoice->start_date);
+                $nextSendDate = $invoice->getNextSendDate();
+
+                // check start date
+                if($account->getDateTime($this->startDate) > $startDate && $account->getDateTime($this->startDate) > $nextSendDate) continue;
+
+                // check end date
+                if($account->getDateTime($this->endDate) < $nextSendDate) continue;
+
                 $totalAmount = $invoice->amount;
                 $taxAmount = $invoice->getTaxTotal();
-                $amount = $totalAmount - $taxAmount;
+                $amount = $invoiceAmount = $totalAmount - $taxAmount;
 
                 $row = [
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
-                    $this->isExport ? $invoice->start_date : $invoice->present()->start_date,
+                    $account->formatDate($nextSendDate),
                     $invoice->frequency->name,
                     $account->formatMoney($amount, $client),
                     $account->formatMoney($taxAmount, $client),
@@ -213,7 +221,7 @@ class RecurringQuoteReport extends AbstractReport
                     $dimension = $this->getDimension($client);
                 }
 
-                $this->addChartData($dimension, $invoice->invoice_date, $invoice->amount);
+                $this->addChartData($dimension, $nextSendDate, $invoiceAmount, $client->currency_id);
             }
         }
     }
