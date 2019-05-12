@@ -184,7 +184,7 @@ class AbstractReport
         }
     }
 
-    protected function addChartData($dimension, $date, $amount)
+    protected function addChartData($dimension, $date, $amount, $currencyId = null)
     {
         if (! isset($this->chartData[$dimension])) {
             $this->chartData[$dimension] = [];
@@ -194,6 +194,11 @@ class AbstractReport
 
         if (! isset($this->chartData[$dimension][$date])) {
             $this->chartData[$dimension][$date] = 0;
+        }
+
+        if ($currencyId && $currencyId != $this->account->getCurrencyId()) {
+            $currency = Currency::where('id', $currencyId)->first();
+            $amount = MoneyUtils::convert($amount, $currency->code, $this->account->currency->code);
         }
 
         $this->chartData[$dimension][$date] += $amount;
