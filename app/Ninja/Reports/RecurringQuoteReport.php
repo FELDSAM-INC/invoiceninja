@@ -17,6 +17,8 @@ class RecurringQuoteReport extends AbstractReport
             'quote_date' => [],
             'frequency' => [],
             'amount' => [],
+            'tax_amount' => [],
+            'total_amount' => [],
             'status' => [],
             'private_notes' => ['columnSelector-false'],
             'user' => ['columnSelector-false'],
@@ -81,12 +83,19 @@ class RecurringQuoteReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
+
+                $totalAmount = $invoice->amount;
+                $taxAmount = $invoice->getTaxTotal();
+                $amount = $totalAmount - $taxAmount;
+
                 $row = [
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $this->isExport ? $invoice->start_date : $invoice->present()->start_date,
                     $invoice->frequency->name,
-                    $account->formatMoney($invoice->amount, $client),
+                    $account->formatMoney($amount, $client),
+                    $account->formatMoney($taxAmount, $client),
+                    $account->formatMoney($totalAmount, $client),
                     $invoice->present()->status(),
                     $invoice->private_notes,
                     $invoice->user->getDisplayName(),
@@ -106,7 +115,6 @@ class RecurringQuoteReport extends AbstractReport
                 $this->data[] = $row;
 
                 // calculate totals by group
-                $amount = $invoice->amount;
                 switch ($group) {
                     case 'day':
                         switch ($invoice->frequency->date_interval) {
