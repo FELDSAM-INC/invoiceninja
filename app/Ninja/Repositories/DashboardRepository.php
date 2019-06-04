@@ -36,7 +36,7 @@ class DashboardRepository
         $labels = [];
         $totals = new stdClass();
 
-        $entitTypes = [ENTITY_INVOICE, ENTITY_PAYMENT];
+        $entitTypes = [ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT];
         if ($includeExpenses) {
             $entitTypes[] = ENTITY_EXPENSE;
         }
@@ -45,6 +45,7 @@ class DashboardRepository
             $data = [];
             $count = 0;
             $balance = 0;
+            $quoteBalance = 0;
 
             if ($currencyId == 'totals') {
                 $records = $this->rawChartDataTotals($entityType, $account, $groupBy, $startDate, $endDate, $account->currency->id);
@@ -52,10 +53,11 @@ class DashboardRepository
                 $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
             }
 
-            array_map(function ($item) use (&$data, &$count, &$balance, $groupBy) {
+            array_map(function ($item) use (&$data, &$count, &$balance, &$quoteBalance, $groupBy) {
                 $data[$item->$groupBy] = $item->total;
                 $count += $item->count;
                 $balance += isset($item->balance) ? $item->balance : 0;
+                $quoteBalance += isset($item->quoteBalance) ? $item->quoteBalance : 0;
             }, $records);
 
             $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
@@ -91,19 +93,24 @@ class DashboardRepository
                 $color = '128,128,128';
             }
 
-            $record = new stdClass();
-            $record->data = $records;
-            $record->label = trans("texts.{$entityType}s");
-            $record->lineTension = 0;
-            $record->borderWidth = 4;
-            $record->borderColor = "rgba({$color}, 1)";
-            $record->backgroundColor = "rgba({$color}, 0.1)";
-            $datasets[] = $record;
+            if($entityType != ENTITY_QUOTE) {
+                $record = new stdClass();
+                $record->data = $records;
+                $record->label = trans("texts.{$entityType}s");
+                $record->lineTension = 0;
+                $record->borderWidth = 4;
+                $record->borderColor = "rgba({$color}, 1)";
+                $record->backgroundColor = "rgba({$color}, 0.1)";
+                $datasets[] = $record;
+            }
 
             if ($entityType == ENTITY_INVOICE) {
                 $totals->invoices = array_sum($data);
                 $totals->average = $count ? round($totals->invoices / $count, 2) : 0;
                 $totals->balance = $balance;
+            } elseif ($entityType == ENTITY_QUOTE) {
+                $totals->quotes = array_sum($data);
+                $totals->quoteBalance = $quoteBalance;
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $totals->revenue = array_sum($data);
             } elseif ($entityType == ENTITY_EXPENSE) {
@@ -140,10 +147,17 @@ class DashboardRepository
         }
 
         if ($entityType == ENTITY_INVOICE) {
-            $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
-                    ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                    ->where('invoices.is_public', '=', true)
-                    ->where('is_recurring', '=', false);
+            $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, ' . $timeframe . ' as ' . $groupBy))
+                ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                ->where('invoices.is_public', '=', true)
+                ->where('is_recurring', '=', false);
+        } elseif ($entityType == ENTITY_QUOTE) {
+            $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as quoteBalance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+                ->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
+                ->where('invoices.is_public', '=', true)
+                ->where('is_recurring', '=', false)
+                ->whereNull('invoices.deleted_at')
+                ->whereNull('quote_invoice_id');
         } elseif ($entityType == ENTITY_PAYMENT) {
             $records->select(DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, '.$timeframe.' as '.$groupBy))
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -164,17 +178,26 @@ class DashboardRepository
 
         list($timeframe, $records) = $this->rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate);
 
-        if ($entityType == ENTITY_INVOICE) {
+        if($entityType == ENTITY_INVOICE || $entityType == ENTITY_QUOTE) {
             // as default invoice exchange rate column we use just 1 value
             $invoiceExchangeRateColumn = 1;
             if ($exchageRateCustomFieldIndex = $account->getInvoiceExchangeRateCustomFieldIndex()) {
                 $invoiceExchangeRateColumn = 'invoices.custom_text_value'.$exchageRateCustomFieldIndex;
             }
+        }
 
-            $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.amount, invoices.amount / '.$invoiceExchangeRateColumn.')) as total, sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.balance, invoices.balance / '.$invoiceExchangeRateColumn.')) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+        if ($entityType == ENTITY_INVOICE) {
+            $records->select(DB::raw('sum(if(clients.currency_id = ' . $currencyId . ' OR clients.currency_id is null, invoices.amount, invoices.amount / ' . $invoiceExchangeRateColumn . ')) as total, sum(if(clients.currency_id = ' . $currencyId . ' OR clients.currency_id is null, invoices.balance, invoices.balance / ' . $invoiceExchangeRateColumn . ')) as balance, count(invoices.id) as count, ' . $timeframe . ' as ' . $groupBy))
                 ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                 ->where('invoices.is_public', '=', true)
                 ->where('is_recurring', '=', false);
+        } elseif ($entityType == ENTITY_QUOTE) {
+            $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.amount, invoices.amount / '.$invoiceExchangeRateColumn.')) as total, sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, invoices.balance, invoices.balance / '.$invoiceExchangeRateColumn.')) as quoteBalance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+                ->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
+                ->where('invoices.is_public', '=', true)
+                ->where('is_recurring', '=', false)
+                ->whereNull('invoices.deleted_at')
+                ->whereNull('quote_invoice_id');
         } elseif ($entityType == ENTITY_PAYMENT) {
             $records->select(DB::raw('sum(if(clients.currency_id = '.$currencyId.' OR clients.currency_id is null, payments.amount - payments.refunded, (payments.amount - payments.refunded) * payments.exchange_rate)) as total, count(payments.id) as count, '.$timeframe.' as '.$groupBy))
                 ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -197,6 +220,9 @@ class DashboardRepository
      */
     private function rawChartDataPrepare($entityType, $account, $groupBy, $startDate, $endDate)
     {
+        // quotes
+        if($entityType == ENTITY_QUOTE) $entityType = ENTITY_INVOICE;
+
         $accountId = $account->id;
         $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
 
@@ -334,6 +360,61 @@ class DashboardRepository
         }
 
         return $balances->get();
+    }
+
+    public function quoteBalances($account, $userId, $viewAll)
+    {
+        $select = DB::raw(
+            'SUM('.DB::getQueryGrammar()->wrap('invoices.balance', true).') as value,'
+            .'IFNULL('.DB::getQueryGrammar()->wrap('clients.currency_id', true).', '.$account->currency->id.') as currency_id,'
+            .'COUNT(*)  as invoice_count'
+        );
+        $balances = DB::table('invoices')
+            ->select($select)
+            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->where('clients.account_id', '=', $account->id)
+            ->where('clients.is_deleted', '=', false)
+            ->where('invoices.is_deleted', '=', false)
+            ->whereNull('invoices.deleted_at')
+            ->where('invoices.is_public', '=', true)
+            ->whereNull('invoices.quote_invoice_id')
+            ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_QUOTE)
+            ->where('invoices.is_recurring', '=', false);
+
+        if (! $viewAll) {
+            $balances->where('invoices.user_id', '=', $userId);
+        }
+
+        return $balances->groupBy('clients.account_id')
+            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN '.($account->currency_id ?: DEFAULT_CURRENCY).' ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
+            ->get();
+    }
+
+    public function totalBalances($account, $userId, $viewAll)
+    {
+        $select = DB::raw(
+            'SUM('.DB::getQueryGrammar()->wrap('invoices.balance', true).') as value,'
+            .'IFNULL('.DB::getQueryGrammar()->wrap('clients.currency_id', true).', '.$account->currency->id.') as currency_id,'
+            .'COUNT(*)  as invoice_count'
+        );
+        $balances = DB::table('invoices')
+            ->select($select)
+            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->where('clients.account_id', '=', $account->id)
+            ->where('clients.is_deleted', '=', false)
+            ->where('invoices.is_deleted', '=', false)
+            ->whereNull('invoices.deleted_at')
+            ->where('invoices.is_public', '=', true)
+            ->whereNull('invoices.quote_invoice_id')
+            ->where('invoices.is_recurring', '=', false);
+
+        if (! $viewAll) {
+            $balances->where('invoices.user_id', '=', $userId);
+        }
+
+        return $balances->groupBy('clients.account_id')
+            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN '.($account->currency_id ?: DEFAULT_CURRENCY).' ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
+            ->get();
     }
 
     public function activities($accountId, $userId, $viewAll)

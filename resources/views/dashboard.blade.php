@@ -198,12 +198,14 @@
                     $('.outstanding-div').text(formatMoney(totals.balance, realCurrencyId, account.country_id));
                     $('.expenses-div').text(formatMoney(totals.expenses, realCurrencyId, account.country_id));
                     $('.average-div').text(formatMoney(totals.average, realCurrencyId, account.country_id));
+                    $('.quoteOutstanding-div').text(formatMoney(totals.quoteBalance, realCurrencyId, account.country_id));
+                    $('.totalOutstanding-div').text(formatMoney(totals.balance + totals.quoteBalance, realCurrencyId, account.country_id));
 
                     $('.currency').hide();
                     $('.currency_' + chartCurrencyId).show();
 
 					// add blank values to fix layout
-					var divs = ['revenue', 'expenses', 'outstanding']
+					var divs = ['revenue', 'expenses', 'outstanding', 'quoteOutstanding']
 					for (var i=0; i<divs.length; i++) {
 						var type = divs[i];
 						if (!$('.' + type + '-panel .currency_' + chartCurrencyId).length) {
@@ -293,7 +295,113 @@
 @endif
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
+        <div class="panel panel-default dashboard-totals">
+            <div class="panel-body outstanding-panel">
+                <div style="overflow:hidden">
+                    <div class="{{ $headerClass }}">
+                        {{ trans('texts.outstanding') }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4" style="border-right: 1px solid #ccc">
+                            <div class="totalOutstanding-div in-bold pull-right" style="color:#337ab7">
+                            </div>
+                            <div class="in-bold">
+                                @if (count($totalBalances))
+                                    @foreach ($totalBalances as $item)
+                                        <div class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
+                                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                                        </div>
+                                    @endforeach
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney($totalBalancesTotals, $account->getCurrencyId()) }}<br/>
+                                    </div>
+                                @else
+                                    <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
+                                        {{ Utils::formatMoney(0) }}
+                                    </div>
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney(0) }}<br/>
+                                    </div>
+                                @endif
+                                <div class="currency currency_blank" style="display:none">
+                                    &nbsp;
+                                </div>
+                            </div>
+                            <div class="pull-left">{{ trans('texts.totalOutstanding') }}</div>
+                            <div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
+                                {{ trans('texts.last_30_days') }}
+                            </div>
+                        </div>
+                        <div class="col-md-4" style="border-right: 1px solid #ccc">
+                            <div class="outstanding-div in-bold pull-right" style="color:#337ab7">
+                            </div>
+                            <div class="in-bold">
+                                @if (count($balances))
+                                    @foreach ($balances as $item)
+                                        <div class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
+                                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                                        </div>
+                                    @endforeach
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney($balancesTotals, $account->getCurrencyId()) }}<br/>
+                                    </div>
+                                @else
+                                    <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
+                                        {{ Utils::formatMoney(0) }}
+                                    </div>
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney(0) }}<br/>
+                                    </div>
+                                @endif
+                                <div class="currency currency_blank" style="display:none">
+                                    &nbsp;
+                                </div>
+                            </div>
+                            <div class="pull-left">{{ trans('texts.invoiceOutstanding') }}</div>
+                            <div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
+                                {{ trans('texts.last_30_days') }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="quoteOutstanding-div in-bold pull-right" style="color:#337ab7">
+                            </div>
+                            <div class="in-bold">
+                                @if (count($quoteBalances))
+                                    @foreach ($quoteBalances as $item)
+                                        <div class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
+                                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                                        </div>
+                                    @endforeach
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney($quoteBalancesTotals, $account->getCurrencyId()) }}<br/>
+                                    </div>
+                                @else
+                                    <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
+                                        {{ Utils::formatMoney(0) }}
+                                    </div>
+                                    <div class="currency currency_totals" style="display:none">
+                                        {{ Utils::formatMoney(0) }}<br/>
+                                    </div>
+                                @endif
+                                <div class="currency currency_blank" style="display:none">
+                                    &nbsp;
+                                </div>
+                            </div>
+                            <div class="pull-left">{{ trans('texts.quoteOutstanding') }}</div>
+                            <div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
+                                {{ trans('texts.last_30_days') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
         <div class="panel panel-default dashboard-totals">
             <div class="panel-body revenue-panel">
                 <div style="overflow:hidden">
@@ -309,26 +417,26 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}
                                 </div>
                             @endforeach
-                                <div class="currency currency_totals" style="display:none">
-                                    {{ Utils::formatMoney($paidToDateTotal, $account->getCurrencyId()) }}
-                                </div>
+                            <div class="currency currency_totals" style="display:none">
+                                {{ Utils::formatMoney($paidToDateTotal, $account->getCurrencyId()) }}
+                            </div>
                         @else
                             <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                 {{ Utils::formatMoney(0) }}
                             </div>
                         @endif
-						<div class="currency currency_blank" style="display:none">
-							&nbsp;
-						</div>
+                        <div class="currency currency_blank" style="display:none">
+                            &nbsp;
+                        </div>
                     </div>
-					<div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
-						{{ trans('texts.last_30_days') }}
-					</div>
+                    <div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
+                        {{ trans('texts.last_30_days') }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="panel panel-default dashboard-totals">
             <div class="panel-body expenses-panel">
                 <div style="overflow:hidden">
@@ -344,12 +452,12 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
-                                <div class="currency currency_totals" style="display:none">
-                                    {{ Utils::formatMoney($expensesTotals, $account->getCurrencyId()) }}<br/>
-                                </div>
-							<div class="currency currency_blank" style="display:none">
-								&nbsp;
-							</div>
+                            <div class="currency currency_totals" style="display:none">
+                                {{ Utils::formatMoney($expensesTotals, $account->getCurrencyId()) }}<br/>
+                            </div>
+                            <div class="currency currency_blank" style="display:none">
+                                &nbsp;
+                            </div>
                         </div>
                     @else
                         <div class="{{ $headerClass }}">
@@ -364,57 +472,22 @@
                                         {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
                                     </div>
                                 @endforeach
-                                    <div class="currency currency_totals" style="display:none">
-                                        {{ Utils::formatMoney($averageInvoiceTotal, $account->getCurrencyId()) }}<br/>
-                                    </div>
+                                <div class="currency currency_totals" style="display:none">
+                                    {{ Utils::formatMoney($averageInvoiceTotal, $account->getCurrencyId()) }}<br/>
+                                </div>
                             @else
                                 <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
                                     {{ Utils::formatMoney(0) }}
                                 </div>
                             @endif
-							<div class="currency currency_blank" style="display:none">
-								&nbsp;
-							</div>
+                            <div class="currency currency_blank" style="display:none">
+                                &nbsp;
+                            </div>
                         </div>
                     @endif
-					<div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
-						{{ trans('texts.last_30_days') }}
-					</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="panel panel-default dashboard-totals">
-            <div class="panel-body outstanding-panel">
-                <div style="overflow:hidden">
-                    <div class="{{ $headerClass }}">
-                        {{ trans('texts.outstanding') }}
+                    <div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
+                        {{ trans('texts.last_30_days') }}
                     </div>
-                    <div class="outstanding-div in-bold pull-right" style="color:#337ab7">
-                    </div>
-                    <div class="in-bold">
-                        @if (count($balances))
-                            @foreach ($balances as $item)
-                                <div class="currency currency_{{ $item->currency_id ?: $account->getCurrencyId() }}" style="display:none">
-                                    {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                                </div>
-                            @endforeach
-                                <div class="currency currency_totals" style="display:none">
-                                    {{ Utils::formatMoney($balancesTotals, $account->getCurrencyId()) }}<br/>
-                                </div>
-                        @else
-                            <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
-                                {{ Utils::formatMoney(0) }}
-                            </div>
-                        @endif
-						<div class="currency currency_blank" style="display:none">
-							&nbsp;
-						</div>
-                    </div>
-					<div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
-						{{ trans('texts.last_30_days') }}
-					</div>
                 </div>
             </div>
         </div>

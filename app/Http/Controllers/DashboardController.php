@@ -37,6 +37,8 @@ class DashboardController extends BaseController
         $paidToDate = $dashboardRepo->paidToDate($account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($account, $userId, $viewAll);
         $balances = $dashboardRepo->balances($account, $userId, $viewAll);
+        $quoteBalances = $dashboardRepo->quoteBalances($account, $userId, $viewAll);
+        $totalBalances = $dashboardRepo->totalBalances($account, $userId, $viewAll);
         $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
@@ -87,6 +89,48 @@ class DashboardController extends BaseController
 
         }
 
+        // calculate quote balances totals
+        $quoteBalancesTotals = 0;
+        foreach ($quoteBalances as $item) {
+            if ($item->currency_id == $account->getCurrencyId()) {
+                $quoteBalancesTotals += $item->value;
+                continue;
+            }
+
+            if (! isset($currencies[$item->currency_id])) {
+                $currencies[$item->currency_id] = Currency::where('id', $item->currency_id)->firstOrFail();
+            }
+
+            try {
+                $quoteBalancesTotals += MoneyUtils::convert($item->value, $currencies[$item->currency_id]->code, $account->currency->code);
+            } catch (\Exception $e) {
+                Utils::logError($e);
+                $quoteBalancesTotals += $item->value;
+            }
+
+        }
+
+        // calculate total balances totals
+        $totalBalancesTotals = 0;
+        foreach ($totalBalances as $item) {
+            if ($item->currency_id == $account->getCurrencyId()) {
+                $totalBalancesTotals += $item->value;
+                continue;
+            }
+
+            if (! isset($currencies[$item->currency_id])) {
+                $currencies[$item->currency_id] = Currency::where('id', $item->currency_id)->firstOrFail();
+            }
+
+            try {
+                $totalBalancesTotals += MoneyUtils::convert($item->value, $currencies[$item->currency_id]->code, $account->currency->code);
+            } catch (\Exception $e) {
+                Utils::logError($e);
+                $totalBalancesTotals += $item->value;
+            }
+
+        }
+
         // calculate expenses totals
         $expensesTotals = 0;
         foreach ($expenses as $item) {
@@ -125,7 +169,11 @@ class DashboardController extends BaseController
             'paidToDate' => $paidToDate,
             'paidToDateTotal' => $paidToDateTotal,
             'balances' => $balances,
+            'quoteBalances' => $quoteBalances,
+            'totalBalances' => $totalBalances,
             'balancesTotals' => $balancesTotals,
+            'quoteBalancesTotals' => $quoteBalancesTotals,
+            'totalBalancesTotals' => $totalBalancesTotals,
             'averageInvoice' => $averageInvoice,
             'averageInvoiceTotal' => $averageInvoiceTotal,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
