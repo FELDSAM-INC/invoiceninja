@@ -338,7 +338,7 @@
                         {{ trans('texts.open_balance') }}
                     </div>
                     <div class="amount">
-                        {{ Utils::formatMoney($client->balance, $client->currency_id ?: $account->currency_id) }}
+                        {{ Utils::formatMoney($clientBalance, $client->currency_id ?: $account->currency_id) }}
                     </div>
                 </div>
             </div>

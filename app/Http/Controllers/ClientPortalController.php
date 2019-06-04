@@ -273,11 +273,21 @@ class ClientPortalController extends BaseController
             $customer = $paymentDriver->customer($client->id);
         }
 
+        // calculate client balance incl. quotes
+        $clientBalance = (float) $client->balance;
+        $quotesWithBalance = $client->quotesWithBalance;
+
+        foreach ($quotesWithBalance as $quote)
+        {
+            $clientBalance += (float) $quote->balance;
+        }
+
         $data = [
             'color' => $color,
             'contact' => $contact,
             'account' => $account,
             'client' => $client,
+            'clientBalance' => $clientBalance,
             'gateway' => $account->getTokenGateway(),
             'paymentMethods' => $customer ? $customer->payment_methods : false,
             'transactionToken' => $paymentDriver ? $paymentDriver->createTransactionToken() : false,

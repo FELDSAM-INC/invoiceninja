@@ -159,6 +159,14 @@ class Client extends EntityModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function quotesWithBalance()
+    {
+        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->where('balance', '>', 0)->whereNull('quote_invoice_id')->where('is_recurring', 0);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function publicQuotes()
     {
         return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
