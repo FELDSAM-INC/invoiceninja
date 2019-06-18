@@ -188,6 +188,11 @@ class ImportFioBankPayments extends Command
                 $query->where($vsCustomFieldName, $reference)
                     ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $reference);
             })
+            ->where(function (&$query) {
+                $query->where('invoice_type_id', INVOICE_TYPE_STANDARD)
+                    ->orWhere('invoice_type_id', INVOICE_TYPE_QUOTE)
+                    ->whereNull('quote_invoice_id');
+            })
             ->first();
 
         // invoice not found or can not convert amount, so continue to next payment
