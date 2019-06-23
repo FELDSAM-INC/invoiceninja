@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1aac90b22b09aa6c9f60abbc4c244a64",
+    "content-hash": "da51cfc170addc8b492e1af7e60b2e2a",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -2368,6 +2368,65 @@
             "time": "2015-12-07T04:07:13+00:00"
         },
         {
+            "name": "dragonbe/vies",
+            "version": "2.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DragonBe/vies.git",
+                "reference": "f1347acd881533f6a06f602f88fd69a03a031f20"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DragonBe/vies/zipball/f1347acd881533f6a06f602f88fd69a03a031f20",
+                "reference": "f1347acd881533f6a06f602f88fd69a03a031f20",
+                "shasum": ""
+            },
+            "require": {
+                "ext-soap": "*",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "ext-pcntl": "*",
+                "infection/infection": "^0.8",
+                "pdepend/pdepend": "^2.5",
+                "phing/phing": "^2.16",
+                "phploc/phploc": "^4.0",
+                "phpmd/phpmd": "^2.6",
+                "phpunit/php-invoker": "^2.0",
+                "phpunit/phpunit": "^7.1",
+                "sebastian/phpcpd": "^4.0",
+                "sensiolabs/security-checker": "^5.0",
+                "squizlabs/php_codesniffer": "^3.2"
+            },
+            "type": "tool",
+            "autoload": {
+                "psr-4": {
+                    "DragonBe\\Vies\\": "src/Vies"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michelangelo van Dam",
+                    "email": "dragonbe@gmail.com",
+                    "homepage": "http://dragonbe.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "EU VAT numbers validation using the VIES Service of the European Commission",
+            "homepage": "https://github.com/DragonBe/vies",
+            "keywords": [
+                "ec",
+                "eu",
+                "vat",
+                "vies"
+            ],
+            "time": "2019-01-13T14:16:50+00:00"
+        },
+        {
             "name": "elasticsearch/elasticsearch",
             "version": "v5.3.2",
             "source": {
@@ -3144,12 +3203,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "801d776b4e4c9fce294d800974266c616bb2ce40"
+                "reference": "b5fbb742af122b565925987e65c08957739976a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/801d776b4e4c9fce294d800974266c616bb2ce40",
-                "reference": "801d776b4e4c9fce294d800974266c616bb2ce40",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/b5fbb742af122b565925987e65c08957739976a7",
+                "reference": "b5fbb742af122b565925987e65c08957739976a7",
                 "shasum": ""
             },
             "require": {
@@ -3164,8 +3223,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Google\\Protobuf\\": "src/Google/Protobuf",
-                    "GPBMetadata\\Google\\Protobuf\\": "src/GPBMetadata/Google/Protobuf"
+                    "Google\\Protobuf\\": "php/src/Google/Protobuf",
+                    "GPBMetadata\\Google\\Protobuf\\": "php/src/GPBMetadata/Google/Protobuf"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -3177,7 +3236,7 @@
             "keywords": [
                 "proto"
             ],
-            "time": "2019-02-25T22:48:13+00:00"
+            "time": "2018-03-06T03:54:18+00:00"
         },
         {
             "name": "grpc/grpc",
@@ -11080,6 +11139,16 @@
                 "php": ">=5.3.0"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Webpatser\\Countries\\CountriesServiceProvider"
+                    ],
+                    "aliases": {
+                        "Countries": "Webpatser\\Countries\\CountriesFacade"
+                    }
+                }
+            },
             "autoload": {
                 "psr-0": {
                     "Webpatser\\Countries": "src/"
@@ -11112,7 +11181,7 @@
                 "iso_3166_3",
                 "laravel"
             ],
-            "time": "2018-06-27T11:58:05+00:00"
+            "time": "2017-10-15T11:08:15+00:00"
         },
         {
             "name": "websight/l5-google-cloud-storage",
@@ -12362,7 +12431,8 @@
             "authors": [
                 {
                     "name": "Chris Boulton",
-                    "homepage": "http://github.com/chrisboulton"
+                    "homepage": "http://github.com/chrisboulton",
+                    "role": "Original developer"
                 }
             ],
             "description": "A comprehensive library for generating differences between two hashable objects (strings or arrays).",
@@ -12897,6 +12967,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
