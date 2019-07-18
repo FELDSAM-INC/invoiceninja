@@ -163,7 +163,7 @@ class ImportFioBankPayments extends Command
         if($transaction->getVariableSymbol() == '4677946') return null;
 
         // skip one time payments
-        if(in_array($transaction->getId(), ['17694406216', '17724783278', '20807288786', '21328846473', '21360549813', '21366553593'])) return null;
+        if(in_array($transaction->getId(), ['17694406216', '17724783278', '20807288786', '21328846473', '21360549813', '21366553593', '21378173811'])) return null;
 
         // check if payment already exists
         if($payment = Payment::where('private_notes', $hash)->where('is_deleted', '!=', 1)->first())
