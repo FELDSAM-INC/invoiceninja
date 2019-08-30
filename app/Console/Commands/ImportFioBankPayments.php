@@ -159,11 +159,9 @@ class ImportFioBankPayments extends Command
         // skip insurance payouts
         if($transaction->getConstantSymbol() == '3558') return null;
 
-        // skip HoppyGo payments
-        if($transaction->getVariableSymbol() == '4677946') return null;
-
         // skip one time payments
-        if(in_array($transaction->getId(), ['17694406216', '17724783278', '20807288786', '21328846473', '21360549813', '21366553593', '21378173811'])) return null;
+        // list of payment IDs to skip
+        //if(in_array($transaction->getId(), ['someId'])) return null;
 
         // check if payment already exists
         if($payment = Payment::where('private_notes', $hash)->where('is_deleted', '!=', 1)->first())
