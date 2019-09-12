@@ -190,6 +190,7 @@ class ImportFioBankPayments extends Command
                     ->orWhere('invoice_type_id', INVOICE_TYPE_QUOTE)
                     ->whereNull('quote_invoice_id');
             })
+            ->orderBy('id', 'asc')
             ->first();
 
         // invoice not found or can not convert amount, so continue to next payment
