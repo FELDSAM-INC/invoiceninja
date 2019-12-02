@@ -1583,6 +1583,7 @@ $LANG = array(
     'country_Germany' => 'Germany',
     'country_Ghana' => 'Ghana',
     'country_Gibraltar' => 'Gibraltar',
+    'country_Kosovo' => 'Kosovo',
     'country_Kiribati' => 'Kiribati',
     'country_Greece' => 'Greece',
     'country_Greenland' => 'Greenland',
