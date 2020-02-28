@@ -264,7 +264,7 @@ class ClientController extends BaseController
         }
 
         if (request()->json) {
-            return dispatch(new GenerateStatementData($client, request()->all()));
+            return dispatch_now(new GenerateStatementData($client, request()->all()));
         }
 
         $data = [
@@ -280,14 +280,14 @@ class ClientController extends BaseController
 
     public function getEmailHistory()
     {
-        $history = dispatch(new LoadPostmarkHistory(request()->email));
+        $history = dispatch_now(new LoadPostmarkHistory(request()->email));
 
         return response()->json($history);
     }
 
     public function reactivateEmail()
     {
-        $result = dispatch(new ReactivatePostmarkEmail(request()->bounce_id));
+        $result = dispatch_now(new ReactivatePostmarkEmail(request()->bounce_id));
 
         return response()->json($result);
     }

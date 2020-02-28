@@ -7,6 +7,7 @@ use App\Http\Requests\TaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Product;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Ninja\Datatables\TaskDatatable;
@@ -128,6 +129,7 @@ class TaskController extends BaseController
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
             'projectPublicId' => Input::old('project_id') ? Input::old('project_id') : ($request->project_id ?: 0),
+            'productPublicId' => Input::old('product_id') ? Input::old('product_id') : ($request->product_id ?: 0),
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
@@ -140,6 +142,12 @@ class TaskController extends BaseController
         return View::make('tasks.edit', $data);
     }
 
+
+    public function cloneTask(TaskRequest $request, $publicId)
+    {
+        return self::edit($request, $publicId, true);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -147,7 +155,7 @@ class TaskController extends BaseController
      *
      * @return \Illuminate\Contracts\View\View
      */
-    public function edit(TaskRequest $request)
+    public function edit(TaskRequest $request, $publicId, $clone = false)
     {
         $this->checkTimezone();
         $task = $request->entity();
@@ -172,10 +180,26 @@ class TaskController extends BaseController
 
         $actions[] = DropdownButton::DIVIDER;
         if (! $task->trashed()) {
+          if (! $clone) {
+              $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans("texts.clone_task")];
+          }
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_task')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_task')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_task')];
+        }
+
+        if ($clone) {
+            $task->id = null;
+            $task->public_id = null;
+            $task->deleted_at = null;
+
+            $method = 'POST';
+            $url = 'tasks';
+        }
+        else{
+          $method = 'PUT';
+          $url = 'tasks/'.$task->public_id;
         }
 
         $data = [
@@ -183,8 +207,9 @@ class TaskController extends BaseController
             'entity' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'projectPublicId' => $task->project ? $task->project->public_id : 0,
-            'method' => 'PUT',
-            'url' => 'tasks/'.$task->public_id,
+            'productPublicId' => $task->product ? $task->product->public_id : 0,
+            'method' => $method,
+            'url' => $url,
             'title' => trans('texts.edit_task'),
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
@@ -219,6 +244,7 @@ class TaskController extends BaseController
             'clients' => Client::scope()->withActiveOrSelected($task ? $task->client_id : false)->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
             'projects' => Project::scope()->withActiveOrSelected($task ? $task->project_id : false)->with('client.contacts')->orderBy('name')->get(),
+            'products' => Product::scope()->withActiveOrSelected($task ? $task->product_id : false)->orderBy('product_key')->get(),
         ];
     }
 
@@ -229,7 +255,12 @@ class TaskController extends BaseController
      */
     private function save($request, $publicId = null)
     {
+
         $action = Input::get('action');
+
+        if ( in_array($action, ['clone'])) {
+          return redirect()->to(sprintf('tasks/%s/clone', $publicId));
+        }
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
@@ -303,12 +334,20 @@ class TaskController extends BaseController
 
                 $account = Auth::user()->account;
                 $showProject = $lastProjectId != $task->project_id;
-                $data[] = [
+                $item_data = [
                     'publicId' => $task->public_id,
                     'description' => $task->present()->invoiceDescription($account, $showProject),
                     'duration' => $task->getHours(),
                     'cost' => $task->getRate(),
+                    'productKey' => null,
                 ];
+
+                if (!empty($task->product_id)) {
+                    $item_data['productKey'] = $task->product->product_key;
+                }
+
+                $data[] = $item_data;
+
                 $lastProjectId = $task->project_id;
             }
 

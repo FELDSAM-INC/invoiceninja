@@ -80,6 +80,9 @@ class MobileLocalization extends Command
 
             foreach ($resources as $key => $val) {
                 $text = trim(addslashes(trans("texts.{$key}", [], $language->locale)));
+                if (substr($text, 0, 6) == 'texts.') {
+                    $text = $resources->$key;
+                }
                 echo "'$key': '$text',\n";
             }
 
@@ -89,17 +92,18 @@ class MobileLocalization extends Command
 
     private function getResources()
     {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/localization.dart';
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
         $start = strpos($data, '\'en\': {') + 8;
         $end = strpos($data, '},', $start);
-        $data = substr($data, $start, $end - $start - 6);
+        $data = substr($data, $start, $end - $start - 5);
 
         $data = str_replace("\n", "", $data);
+        $data = str_replace("\"", "\'", $data);
         $data = str_replace("'", "\"", $data);
 
-        return json_decode('{' . $data . '}');
+        return json_decode('{' . rtrim($data, ',') . '}');
     }
 
     protected function getOptions()

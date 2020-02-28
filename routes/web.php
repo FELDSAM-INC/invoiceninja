@@ -38,7 +38,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
-    Route::post('payment/{invitation_key}/{gateway_type?}', 'OnlinePaymentController@doPayment');
+    Route::post('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@doPayment');
     Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
@@ -168,6 +168,13 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
+    Route::get('migration/start', 'Migration\StepsController@start');
+
+    Route::get('migration/download', 'Migration\StepsController@download'); 
+    Route::post('migration/download', 'Migration\StepsController@handleDownload');
+
+    Route::get('migration/import', 'Migration\StepsController@import');
+
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
@@ -183,6 +190,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::delete('task_statuses/{task_status_id}', 'TaskKanbanController@deleteStatus');
     Route::put('task_status_order/{task_id}', 'TaskKanbanController@updateTask');
     Route::resource('tasks', 'TaskController');
+    Route::get('tasks/{tasks}/clone', 'TaskController@cloneTask');
     Route::get('api/tasks/{client_id?}/{project_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');

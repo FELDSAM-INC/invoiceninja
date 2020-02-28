@@ -70,7 +70,7 @@ class ImportFioBankPayments extends Command
         $this->contatMailer   = $contactMailer;
     }
 
-    public function fire()
+    public function handle()
     {
         $this->token                         = env('FIO_API_TOKEN');
         $this->variableSymbolCustomFieldName = env('INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME');

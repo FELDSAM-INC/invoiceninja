@@ -31,7 +31,7 @@ class CheckEuVat extends Command
         'en' => 'Supply of a service/goods is, according to Articles 193 to 196 of Council Directive 2006/112/EC of 28 November 2006 on the common system of value added tax as amendet by Council Directive 2006/138/EC of 19 December, tax free and it is a supply of service/goods, which the person to whom the service/goods is/are supplied, is obliged to tax.',
     );
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Checking if VIES service is up...');
 

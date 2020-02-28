@@ -25,6 +25,8 @@ class InvoiceReport extends AbstractReport
             'private_notes' => ['columnSelector-false'],
             'vat_number' => ['columnSelector-false'],
             'user' => ['columnSelector-false'],
+            'billing_address' => ['columnSelector-false'],
+            'shipping_address' => ['columnSelector-false'],
         ];
 
         if (TaxRate::scope()->count()) {
@@ -54,7 +56,7 @@ class InvoiceReport extends AbstractReport
         $clients = Client::scope()
                         ->orderBy('name')
                         ->withArchived()
-                        ->with('contacts', 'user')
+                        ->with('contacts', 'user', 'country', 'shipping_country')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->invoices()
                                   ->withArchived()
@@ -120,7 +122,9 @@ class InvoiceReport extends AbstractReport
                         $invoice->po_number,
                         $invoice->private_notes,
                         $client->vat_number,
-                        $invoice->user->getDisplayName(),
+                        $client->user->getDisplayName(),
+                        trim(str_replace('<br/>', ', ', $client->present()->address()), ', '),
+                        trim(str_replace('<br/>', ', ', $client->present()->address(ADDRESS_SHIPPING)), ', '),
                     ];
 
                     if ($hasTaxRates) {

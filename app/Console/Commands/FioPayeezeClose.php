@@ -21,7 +21,7 @@ class FioPayeezeClose extends Command
      */
     protected $description = 'Close day of payment gateway Fio Bank Payeezy';
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Running close day...');
 

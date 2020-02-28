@@ -21,7 +21,7 @@ class ImportToggle extends Command
      */
     protected $description = 'Import data from time tracking system Toggle';
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Loading data...');
 
