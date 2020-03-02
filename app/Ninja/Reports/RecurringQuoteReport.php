@@ -51,11 +51,9 @@ class RecurringQuoteReport extends AbstractReport
 
         $clients = Client::scope()
                         ->orderBy('name')
-                        ->withArchived()
                         ->with('contacts', 'user')
                         ->with(['invoices' => function ($query) use ($statusIds) {
                             $query->recurringQuote()
-                                  ->withArchived()
                                   ->statusIds($statusIds)
                                   ->where('start_date', '<=', $this->endDate)
                                   ->with(['invoice_items', 'invoice_status', 'frequency']);
@@ -84,144 +82,151 @@ class RecurringQuoteReport extends AbstractReport
             foreach ($client->invoices as $invoice) {
 
                 $startDate = $account->getDateTime($invoice->start_date);
-                $nextSendDate = $invoice->getNextSendDate();
 
-                // check start date
-                if($account->getDateTime($this->startDate) > $startDate && $account->getDateTime($this->startDate) > $nextSendDate) continue;
+                $firstOne = true;
+                $nextSendDate = null;
+                do {
+                    $nextSendDate = $invoice->getNextSendDate($nextSendDate);
 
-                // check end date
-                if($account->getDateTime($this->endDate) < $nextSendDate) continue;
+                    // check start date
+                    if ($account->getDateTime($this->startDate) > $startDate && $account->getDateTime($this->startDate) > $nextSendDate) continue;
 
-                $totalAmount = $invoice->amount;
-                $taxAmount = $invoice->getTaxTotal();
-                $amount = $invoiceAmount = $totalAmount - $taxAmount;
+                    // check end date
+                    if ($account->getDateTime($this->endDate) < $nextSendDate) break;
 
-                $row = [
-                    $this->isExport ? $client->getDisplayName() : $client->present()->link,
-                    $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
-                    $account->formatDate($nextSendDate),
-                    $invoice->frequency->name,
-                    $account->formatMoney($amount, $client),
-                    $account->formatMoney($taxAmount, $client),
-                    $account->formatMoney($totalAmount, $client),
-                    $invoice->present()->status(),
-                    $invoice->private_notes,
-                    $invoice->user->getDisplayName(),
-                ];
+                    $totalAmount = $invoice->amount;
+                    $taxAmount = $invoice->getTaxTotal();
+                    $amount = $invoiceAmount = $totalAmount - $taxAmount;
 
-                if ($hasTaxRates) {
-                    $row[] = $account->formatMoney($invoice->getTaxTotal(), $client);
-                }
+                    $row = [
+                        $this->isExport ? $client->getDisplayName() : $client->present()->link,
+                        $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
+                        $account->formatDate($nextSendDate),
+                        $invoice->frequency->name,
+                        $account->formatMoney($amount, $client),
+                        $account->formatMoney($taxAmount, $client),
+                        $account->formatMoney($totalAmount, $client),
+                        $invoice->present()->status(),
+                        $invoice->private_notes,
+                        $invoice->user->getDisplayName(),
+                    ];
 
-                if ($account->customLabel('invoice_text1')) {
-                    $row[] = $invoice->custom_text_value1;
-                }
-                if ($account->customLabel('invoice_text2')) {
-                    $row[] = $invoice->custom_text_value2;
-                }
+                    if ($hasTaxRates) {
+                        $row[] = $account->formatMoney($invoice->getTaxTotal(), $client);
+                    }
 
-                $this->data[] = $row;
+                    if ($account->customLabel('invoice_text1')) {
+                        $row[] = $invoice->custom_text_value1;
+                    }
+                    if ($account->customLabel('invoice_text2')) {
+                        $row[] = $invoice->custom_text_value2;
+                    }
 
-                // calculate totals by group
-                switch ($group) {
-                    case 'day':
-                        switch ($invoice->frequency->date_interval) {
-                            case '2 years':
-                                $amount /= 730;
-                                break;
-                            case '1 year':
-                                $amount /= 365;
-                                break;
-                            case '6 months':
-                                $amount /= 183;
-                                break;
-                            case '4 months':
-                                $amount /= 122;
-                                break;
-                            case '3 months':
-                                $amount /= 91;
-                                break;
-                            case '2 months':
-                                $amount /= 61;
-                                break;
-                            case '1 month':
-                                $amount /= 30;
-                                break;
-                            case '2 weeks':
-                                $amount /= 14;
-                                break;
-                            case '1 week':
-                                $amount /= 7;
-                                break;
-                        }
-                        break;
-                    case 'monthyear':
-                        switch ($invoice->frequency->date_interval) {
-                            case '2 years':
-                                $amount /= 24;
-                                break;
-                            case '1 year':
-                                $amount /= 12;
-                                break;
-                            case '6 months':
-                                $amount /= 6;
-                                break;
-                            case '4 months':
-                                $amount /= 4;
-                                break;
-                            case '3 months':
-                                $amount /= 3;
-                                break;
-                            case '2 months':
-                                $amount /= 2;
-                                break;
-                            case '2 weeks':
-                                $amount *= 2;
-                                break;
-                            case '1 week':
-                                $amount *= 4;
-                                break;
-                        }
-                        break;
-                    case 'year':
-                        switch ($invoice->frequency->date_interval) {
-                            case '2 years':
-                                $amount /= 2;
-                                break;
-                            case '6 months':
-                                $amount *= 2;
-                                break;
-                            case '4 months':
-                                $amount *= 3;
-                                break;
-                            case '3 months':
-                                $amount *= 4;
-                                break;
-                            case '2 months':
-                                $amount *= 6;
-                                break;
-                            case '1 month':
-                                $amount *= 12;
-                                break;
-                            case '2 weeks':
-                                $amount *= 24;
-                                break;
-                            case '1 week':
-                                $amount *= 48;
-                                break;
-                        }
-                        break;
-                }
+                    $this->data[] = $row;
 
-                $this->addToTotals($client->currency_id, 'amount', $amount);
+                    // calculate totals by group
+                    switch ($group) {
+                        case 'day':
+                            switch ($invoice->frequency->date_interval) {
+                                case '2 years':
+                                    $amount /= 730;
+                                    break;
+                                case '1 year':
+                                    $amount /= 365;
+                                    break;
+                                case '6 months':
+                                    $amount /= 183;
+                                    break;
+                                case '4 months':
+                                    $amount /= 122;
+                                    break;
+                                case '3 months':
+                                    $amount /= 91;
+                                    break;
+                                case '2 months':
+                                    $amount /= 61;
+                                    break;
+                                case '1 month':
+                                    $amount /= 30;
+                                    break;
+                                case '2 weeks':
+                                    $amount /= 14;
+                                    break;
+                                case '1 week':
+                                    $amount /= 7;
+                                    break;
+                            }
+                            break;
+                        case 'monthyear':
+                            switch ($invoice->frequency->date_interval) {
+                                case '2 years':
+                                    $amount /= 24;
+                                    break;
+                                case '1 year':
+                                    $amount /= 12;
+                                    break;
+                                case '6 months':
+                                    $amount /= 6;
+                                    break;
+                                case '4 months':
+                                    $amount /= 4;
+                                    break;
+                                case '3 months':
+                                    $amount /= 3;
+                                    break;
+                                case '2 months':
+                                    $amount /= 2;
+                                    break;
+                                case '2 weeks':
+                                    $amount *= 2;
+                                    break;
+                                case '1 week':
+                                    $amount *= 4;
+                                    break;
+                            }
+                            break;
+                        case 'year':
+                            switch ($invoice->frequency->date_interval) {
+                                case '2 years':
+                                    $amount /= 2;
+                                    break;
+                                case '6 months':
+                                    $amount *= 2;
+                                    break;
+                                case '4 months':
+                                    $amount *= 3;
+                                    break;
+                                case '3 months':
+                                    $amount *= 4;
+                                    break;
+                                case '2 months':
+                                    $amount *= 6;
+                                    break;
+                                case '1 month':
+                                    $amount *= 12;
+                                    break;
+                                case '2 weeks':
+                                    $amount *= 24;
+                                    break;
+                                case '1 week':
+                                    $amount *= 48;
+                                    break;
+                            }
+                            break;
+                    }
 
-                if ($subgroup == 'status') {
-                    $dimension = $invoice->statusLabel();
-                } else {
-                    $dimension = $this->getDimension($client);
-                }
+                    if ($firstOne === true || !$group) $this->addToTotals($client->currency_id, 'amount', $amount);
 
-                $this->addChartData($dimension, $nextSendDate, $invoiceAmount, $client->currency_id);
+                    if ($subgroup == 'status') {
+                        $dimension = $invoice->statusLabel();
+                    } else {
+                        $dimension = $this->getDimension($client);
+                    }
+
+                    $this->addChartData($dimension, $nextSendDate, $invoiceAmount, $client->currency_id);
+
+                    $firstOne = false;
+                } while (1 == 1);
             }
         }
     }
