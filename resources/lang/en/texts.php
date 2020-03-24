@@ -3290,9 +3290,9 @@ $LANG = array(
     'product3' => 'Custom Product 3',
     'product4' => 'Custom Product 4',
     'client1' => 'Custom Client 1',
-    'client2' => 'Custom Client 1',
-    'client3' => 'Custom Client 1',
-    'client4' => 'Custom Client 1',
+    'client2' => 'Custom Client 2',
+    'client3' => 'Custom Client 3',
+    'client4' => 'Custom Client 4',
     'contact1' => 'Custom Contact 1',
     'contact2' => 'Custom Contact 2',
     'contact3' => 'Custom Contact 3',
@@ -3357,7 +3357,7 @@ $LANG = array(
     'about' => 'About',
     'credit_email' => 'Credit Email',
     'domain_url' => 'Domain URL',
-    'password_is_too_easy' => 'Password msut contain an upper case character and a number',
+    'password_is_too_easy' => 'Password must contain an upper case character and a number',
     'client_portal_tasks' => 'Client Portal Tasks',
     'client_portal_dashboard' => 'Client Portal Dashboard',
     'please_enter_a_value' => 'Please enter a value',
@@ -3475,6 +3475,10 @@ $LANG = array(
     'vendor_city' => 'Vendor City',
     'vendor_state' => 'Vendor State',
     'vendor_country' => 'Vendor Country',
+    'credit_footer' => 'Credit Footer',
+    'credit_terms' => 'Credit Terms',
+    'untitled_company' => 'Untitled Company',
+    'added_company' => 'Successfully added company',
 );
 
 return $LANG;

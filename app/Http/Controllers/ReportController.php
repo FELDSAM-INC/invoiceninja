@@ -115,6 +115,7 @@ class ReportController extends BaseController
                 'start_date' => $params['startDate'],
                 'end_date' => $params['endDate'],
             ];
+
             $report = dispatch_now(new RunReport(auth()->user(), $reportType, $config, $account, $isExport));
             $params = array_merge($params, $report->exportParams);
             switch ($action) {
