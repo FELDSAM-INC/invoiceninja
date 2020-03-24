@@ -316,7 +316,7 @@
                         {{ trans('texts.total_invoiced') }}
                     </div>
                     <div class="amount">
-                        {{ Utils::formatMoney($client->paid_to_date + $client->balance, $client->currency_id ?: $account->currency_id) }}
+                        {{ Utils::formatMoney($client->paid_to_date + $clientBalance, $client->currency_id ?: $account->currency_id) }}
                     </div>
                 </div>
             </div>

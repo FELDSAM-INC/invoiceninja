@@ -94,7 +94,7 @@ class ImportFioBankPayments extends Command
         try
         {
             $downloader = new \FioApi\Downloader($this->token);
-            $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-12 hours'));
+            $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-24 hours'));
 
             foreach ($transactionList->getTransactions() as $transaction)
             {
@@ -159,11 +159,14 @@ class ImportFioBankPayments extends Command
         // skip insurance payouts
         if($transaction->getConstantSymbol() == '3558') return null;
 
+        // skip VZP returns
+        if($transaction->getConstantSymbol() == '0558') return null;
+
         // skip HoppyGo payments
         if($transaction->getVariableSymbol() == '4677946') return null;
 
         // skip one time payments
-        if(in_array($transaction->getId(), ['17694406216', '17724783278', '20807288786', '21328846473', '21360549813', '21366553593', '21378173811', '22944849327'])) return null;
+        if(in_array($transaction->getId(), ['17694406216', '17724783278', '20807288786', '21328846473', '21360549813', '21366553593', '21378173811', '22944849327', '22987607930', '22991668367'])) return null;
 
         // check if payment already exists
         if($payment = Payment::where('private_notes', $hash)->where('is_deleted', '!=', 1)->first())
@@ -183,7 +186,8 @@ class ImportFioBankPayments extends Command
             ->where('is_recurring', '!=', 1)
             ->where(function (&$query) use($vsCustomFieldName, $reference) {
                 $query->where($vsCustomFieldName, $reference)
-                    ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $reference);
+                    ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $reference)
+                    ->orWhere(DB::raw("REGEXP_REPLACE(invoice_number, '[a-zA-Z\-]+', '')"), $reference);
             })
             ->where(function (&$query) {
                 $query->where('invoice_type_id', INVOICE_TYPE_STANDARD)
@@ -198,6 +202,10 @@ class ImportFioBankPayments extends Command
 
         // assign data to vars
         list($convert_currency, $exchange_currency_id, $exchange_rate, $amount) = $transactionAmountData;
+
+        // update variable symbol on invoice
+        $invoice->{$vsCustomFieldName} = $reference;
+        $invoice->save();
 
         // check if invoice is quote and if is, them convert it
         if($invoice->isQuote()) {

@@ -1251,7 +1251,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getPrettySchedule($min = 0, $max = 10)
     {
-        if (! $schedule = $this->getSchedule($max)) {
+        if (! $schedule = $this->getSchedule()) {
             return null;
         }
 

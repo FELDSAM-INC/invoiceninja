@@ -130,16 +130,22 @@ trait HasRecurrence
     /**
      * @throws \Recurr\Exception\MissingData
      *
+     * @param  \DateTimeInterface|null can adjust $lastSentDate to custom calculations
+     *                      we use this in reports to get future schedule
      * @return bool|\Recurr\RecurrenceCollection
      */
-    public function getSchedule()
+    public function getSchedule(\DateTimeInterface $lastSentDate = null)
     {
         if (! $this->start_date || ! $this->frequency_id) {
             return false;
         }
 
-        $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
-        $startDate .= ' ' . $this->account->recurring_hour . ':00:00';
+        if ($lastSentDate !== null) {
+            $startDate = $lastSentDate;
+        } else {
+            $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
+            $startDate .= ' ' . $this->account->recurring_hour . ':00:00';
+        }
         $timezone = $this->account->getTimezone();
 
         $rule = $this->getRecurrenceRule();
@@ -161,22 +167,24 @@ trait HasRecurrence
     }
 
     /**
+     * * @param  \DateTimeInterface|null can adjust $lastSentDate to custom calculations
+     *                      we use this in reports to get future schedule
      * @return null
      */
-    public function getNextSendDate()
+    public function getNextSendDate(\DateTimeInterface $lastSentDate = null)
     {
         // expenses don't have an is_public flag
         if ($this->is_recurring && ! $this->is_public) {
             return null;
         }
 
-        if ($this->start_date && ! $this->last_sent_date) {
+        if ($this->start_date && ! $this->last_sent_date && $lastSentDate === null) {
             $startDate = $this->getOriginal('start_date') . ' ' . $this->account->recurring_hour . ':00:00';
 
             return $this->account->getDateTime($startDate);
         }
 
-        if (! $schedule = $this->getSchedule()) {
+        if (! $schedule = $this->getSchedule($lastSentDate)) {
             return null;
         }
 
