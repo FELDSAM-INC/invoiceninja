@@ -184,12 +184,12 @@ class ImportFioBankPayments extends Command
         $invoice = Invoice::whereNotIn('invoice_status_id', array(INVOICE_STATUS_DRAFT, INVOICE_STATUS_PAID))
             ->where('is_deleted', '!=', 1)
             ->where('is_recurring', '!=', 1)
-            ->where(function (&$query) use($vsCustomFieldName, $reference) {
+            ->where(function ($query) use($vsCustomFieldName, $reference) {
                 $query->where($vsCustomFieldName, $reference)
                     ->orWhere(DB::raw('LPAD('.$vsCustomFieldName.', 10, "0")'), $reference)
                     ->orWhere(DB::raw("REGEXP_REPLACE(invoice_number, '[a-zA-Z\-]+', '')"), $reference);
             })
-            ->where(function (&$query) {
+            ->where(function ($query) {
                 $query->where('invoice_type_id', INVOICE_TYPE_STANDARD)
                     ->orWhere('invoice_type_id', INVOICE_TYPE_QUOTE)
                     ->whereNull('quote_invoice_id');
