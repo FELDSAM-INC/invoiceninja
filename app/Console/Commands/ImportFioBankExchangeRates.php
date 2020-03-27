@@ -71,7 +71,10 @@ class ImportFioBankExchangeRates extends Command
      */
     private function downloadRates() {
         $dom = new Dom;
-        $dom->loadFromUrl('https://www.fio.cz/akcie-investice/dalsi-sluzby-fio/devizove-konverze', ['cleanupInput' => false]);
+        $dom->loadFromUrl('https://www.fio.cz/akcie-investice/dalsi-sluzby-fio/devizove-konverze', [
+            'cleanupInput' => false,
+            'enforceEncoding' => 'UTF-8',
+        ]);
         $rates = html_entity_decode($dom->find('#settings')->getAttribute('data-kurzy'));
         $rates = json_decode($rates);
 
