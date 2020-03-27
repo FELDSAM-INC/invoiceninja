@@ -21,6 +21,7 @@ use App\Services\PaymentService;
 use Auth;
 use DB;
 use Utils;
+use App;
 
 class InvoiceRepository extends BaseRepository
 {
@@ -1099,6 +1100,7 @@ class InvoiceRepository extends BaseRepository
     {
         $recurInvoice->load('account.timezone', 'invoice_items', 'client', 'user');
         $client = $recurInvoice->client;
+        $account = $recurInvoice->account;
 
         if ($client->deleted_at) {
             return false;
@@ -1112,14 +1114,14 @@ class InvoiceRepository extends BaseRepository
             return false;
         }
 
-        $default_terms = ($recurInvoice->isType(INVOICE_TYPE_STANDARD)) ? $recurInvoice->account->invoice_terms : $recurInvoice->account->quote_terms;
+        $default_terms = ($recurInvoice->isType(INVOICE_TYPE_STANDARD)) ? $account->invoice_terms : $account->quote_terms;
 
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->is_public = true;
         $invoice->invoice_type_id = $recurInvoice->invoice_type_id;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextNumber($invoice);
+        $invoice->invoice_number = $account->getNextNumber($invoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');
@@ -1141,6 +1143,30 @@ class InvoiceRepository extends BaseRepository
         $invoice->custom_text_value2 = Utils::processVariables($recurInvoice->custom_text_value2, $client);
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
         $invoice->due_date = $recurInvoice->getDueDate();
+
+        // update exchange rate
+        if ($account->currency_id !== $client->currency->id) {
+            App::setLocale($account->language->locale);
+            $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
+            $actualExchangeRate = $client->currency->exchange_rate;
+
+            if ($exchangeRateTranslation == strtolower($account->custom_fields->invoice_text1)) {
+                $invoice->custom_text_value1 = $actualExchangeRate;
+            }
+
+            if ($exchangeRateTranslation == strtolower($account->custom_fields->invoice_text2)) {
+                $invoice->custom_text_value2 = $actualExchangeRate;
+            }
+        }
+        // end update exchange rate
+
+        // auto-set variable symbol
+        $variableSymbolCustomFieldName = env('INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME');
+        if ($variableSymbolCustomFieldName) {
+            $invoice->{$variableSymbolCustomFieldName} = preg_replace('/[^0-9]/', '', $invoice->invoice_number);
+        }
+        // end auto-set variable symbol
+
         $invoice->save();
 
         foreach ($recurInvoice->invoice_items as $recurItem) {
