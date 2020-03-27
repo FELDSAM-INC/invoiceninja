@@ -35,6 +35,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\FioPayeezeClose',
         'App\Console\Commands\CheckEuVat',
         'App\Console\Commands\ImportFioBankPayments',
+        'App\Console\Commands\ImportFioBankExchangeRates',
         'App\Console\Commands\MakeModuleSettings',
         'App\Console\Commands\ImportToggle',
         'App\Console\Commands\ConvertClientsCurrency',
