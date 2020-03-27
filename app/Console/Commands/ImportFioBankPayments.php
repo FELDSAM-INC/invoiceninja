@@ -250,8 +250,8 @@ class ImportFioBankPayments extends Command
      */
     protected function getTransactionAmountData(Invoice $invoice, Transaction $transaction)
     {
-        $account = $invoice->account()->first();
-        $invoiceCurrency = $invoice->client()->first()->currency()->first();
+        $account = $invoice->account;
+        $invoiceCurrency = $invoice->client->currency;
 
         // nothing to do
         if($invoiceCurrency === null || $account->currency_id === $invoiceCurrency->id)
@@ -297,7 +297,7 @@ class ImportFioBankPayments extends Command
      */
     protected function getInvoiceExchangeRate(Account $account, Invoice $invoice)
     {
-        App::setLocale($account->language()->first()->locale);
+        App::setLocale($account->language->locale);
 
         $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
 
