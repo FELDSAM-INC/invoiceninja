@@ -1145,7 +1145,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->due_date = $recurInvoice->getDueDate();
 
         // update exchange rate
-        if ($account->currency_id !== $client->currency->id) {
+        if ($client->currency !== null && $account->currency_id !== $client->currency->id) {
             App::setLocale($account->language->locale);
             $exchangeRateTranslation = strtolower(trans('texts.exchange_rate'));
             $actualExchangeRate = $client->currency->exchange_rate;
