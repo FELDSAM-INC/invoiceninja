@@ -165,6 +165,9 @@ class ImportFioBankPayments extends Command
         // skip HoppyGo payments
         if($transaction->getVariableSymbol() == '4677946') return null;
 
+        // skip debit card credits
+        if($transaction->getVariableSymbol() == '1578') return null;
+
         // skip one time payments
         if(in_array($transaction->getId(), ['17694406216', '17724783278', '20807288786', '21328846473', '21360549813', '21366553593', '21378173811', '22944849327', '22987607930', '22991668367'])) return null;
 
