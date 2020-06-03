@@ -28,7 +28,7 @@ class CheckEuVat extends Command
 
     protected static $euVatTerms = array(
         'cs' => 'Dodanie služby/tovaru podľa článku 193 až 196 smernice Rady 2006/112/ES z 28. novembra 2006 o spoločnom systéme dane z pridanej hodnoty v znení smernice Rady 2006/138/ES z 19. decembra 2006 je oslobodené od dane a ide o službu/tovar, ktorú je povinný zdaniť prijímateľ služby/tovaru.',
-        'en' => 'Supply of a service/goods is, according to Articles 193 to 196 of Council Directive 2006/112/EC of 28 November 2006 on the common system of value added tax as amendet by Council Directive 2006/138/EC of 19 December, tax free and it is a supply of service/goods, which the person to whom the service/goods is/are supplied, is obliged to tax.',
+        'en' => 'Supply of service or goods is, according to Articles 193 to 196 of Council Directive 2006/112/EC of 28 November 2006 of the common system of value-added tax as amended by Council Directive 2006/138/EC of 19 December, tax-free. It is a supply of service or goods, which the person to whom the service or goods is supplied, is obliged to tax.',
     );
 
     public function handle()
