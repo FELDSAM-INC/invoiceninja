@@ -13,7 +13,7 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
 {
     protected $checkoutEndpoint = array(
         'test' => 'https://secureshop-test.firstdata.lv/ecomm/ClientHandler',
-        'prod' => 'https://secureshop.firstdata.lv/ecomm/ClientHandler',
+        'prod' => 'https://vpos.sia.eu/ecomm/ClientHandler',
     );
 
     public function isSuccessful()

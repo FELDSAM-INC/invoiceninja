@@ -6,7 +6,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 {
     protected $endpoint = array(
         'test' => 'https://secureshop-test.firstdata.lv:8443/ecomm/MerchantHandler',
-        'prod' => 'https://secureshop.firstdata.lv:8443/ecomm/MerchantHandler',
+        'prod' => 'https://vpos.sia.eu:8443/ecomm/MerchantHandler',
     );
 
     protected $baseCurrencyCode = 'CZK';
