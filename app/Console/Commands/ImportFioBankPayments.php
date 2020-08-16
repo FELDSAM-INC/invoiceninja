@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use FioApi\Downloader;
 use FioApi\Transaction;
 use Illuminate\Console\Command;
 use Auth;
@@ -29,7 +30,7 @@ class ImportFioBankPayments extends Command
     /**
      * @var string
      */
-    protected $description = 'Import payments from account in Fio Bank';
+    protected $description = 'Import payments from accounts in Fio Bank';
 
     /**
      * @var PaymentService
@@ -52,9 +53,14 @@ class ImportFioBankPayments extends Command
     protected $canNotPair = array();
 
     /**
-     * @var string FIO Bank API token
+     * @var string[] FIO Bank API tokens array, indexed by currency code
      */
-    protected $token;
+    protected $tokens = array();
+
+    /**
+     * @var string[] List of currency codes of accounts
+     */
+    protected $currencies = array();
 
     /**
      * @var string name of invoice custom field used as variable symbol
@@ -72,14 +78,27 @@ class ImportFioBankPayments extends Command
 
     public function handle()
     {
-        $this->token                         = env('FIO_API_TOKEN');
-        $this->variableSymbolCustomFieldName = env('INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME');
+        $this->currencies = explode(';', env('FIO_API_CURRENCIES'));
 
-        if( ! $this->token)
+        if( ! $this->currencies)
         {
-            $this->error(date('r') . ' There is no API token set. Please set it in .env file FIO_API_TOKEN={token}');
+            $this->error(date('r') . ' There is no list of currency codes set! Please set it in .env file FIO_API_CURRENCIES=CZK;EUR');
             exit(1);
         }
+
+        foreach ($this->currencies as $currency)
+        {
+            $this->tokens[$currency] = env('FIO_API_TOKEN_'.$currency);
+
+            if( ! $this->tokens[$currency])
+            {
+                $this->error(date('r') . ' There is no API token set for account in currecny "'.$currency.
+                    '". Please set it in .env file FIO_API_TOKEN_'.$currency.'={token}');
+                exit(1);
+            }
+        }
+
+        $this->variableSymbolCustomFieldName = env('INVOICE_VARIABLE_SYMBOL_CUSTOM_FIELD_NAME');
 
         if( ! $this->variableSymbolCustomFieldName)
         {
@@ -93,22 +112,22 @@ class ImportFioBankPayments extends Command
 
         try
         {
-            $downloader = new \FioApi\Downloader($this->token);
-            $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-24 hours'));
-
-            foreach ($transactionList->getTransactions() as $transaction)
+            foreach ($this->currencies as $currency)
             {
-                $payment = $this->processTransaction($transaction);
+                $downloader = new Downloader($this->tokens[$currency]);
+                $transactionList = $downloader->downloadSince(new \DateTimeImmutable('-48 hours'));
 
-                if($payment && $emailReceipt)
-                {
-                    $this->contatMailer->sendPaymentConfirmation($payment);
-                }
+                foreach ($transactionList->getTransactions() as $transaction) {
+                    $payment = $this->processTransaction($transaction);
 
-                // can not pair transaction
-                if($payment === false)
-                {
-                    $this->canNotPair[] = $transaction;
+                    if ($payment && $emailReceipt) {
+                        $this->contatMailer->sendPaymentConfirmation($payment);
+                    }
+
+                    // can not pair transaction
+                    if ($payment === false) {
+                        $this->canNotPair[] = $transaction;
+                    }
                 }
             }
         }
@@ -268,6 +287,12 @@ class ImportFioBankPayments extends Command
         }
 
         $actualExchangeRate = $invoiceCurrency->exchange_rate;
+
+        // check if invoice currency is same as fio bank account currency
+        if($invoiceCurrency->code === $transaction->getCurrency())
+        {
+            return array(1, $account->currency_id, $actualExchangeRate, $transaction->getAmount());
+        }
 
         // convert amount
         $amount = $transaction->getAmount() * $actualExchangeRate;
