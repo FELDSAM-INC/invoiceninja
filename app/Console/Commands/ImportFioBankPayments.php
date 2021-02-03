@@ -181,6 +181,9 @@ class ImportFioBankPayments extends Command
         // skip VZP returns
         if($transaction->getConstantSymbol() == '0558') return null;
 
+        // skip PSSZ returns
+        if($transaction->getConstantSymbol() == '0938') return null;
+
         // skip HoppyGo payments
         if($transaction->getVariableSymbol() == '4677946') return null;
 
