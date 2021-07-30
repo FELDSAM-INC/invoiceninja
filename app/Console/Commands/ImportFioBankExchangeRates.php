@@ -88,7 +88,7 @@ class ImportFioBankExchangeRates extends Command
         {
             if($rate->c == $base)
             {
-                Currency::whereCode($rate->z)->update(['exchange_rate' => $rate->n]);
+                DB:statement('SET STATEMENT max_statement_time=100 FOR UPDATE `currencies` SET `exchange_rate` = "'.$rate->n.'" WHERE `code` = "'.$rate->z.'"');
             }
         }
 
