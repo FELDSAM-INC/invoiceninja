@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Libraries\CurlUtils;
 use App\Models\Currency;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\ChildNotFoundException;
@@ -88,7 +89,7 @@ class ImportFioBankExchangeRates extends Command
         {
             if($rate->c == $base)
             {
-                DB:statement('SET STATEMENT max_statement_time=100 FOR UPDATE `currencies` SET `exchange_rate` = "'.$rate->n.'" WHERE `code` = "'.$rate->z.'"');
+                DB::statement('SET STATEMENT max_statement_time=100 FOR UPDATE `currencies` SET `exchange_rate` = "'.$rate->n.'" WHERE `code` = "'.$rate->z.'"');
             }
         }
 
