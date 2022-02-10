@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Account;
+use App\Models\Currency;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
@@ -297,13 +298,22 @@ class ImportFioBankPayments extends Command
             return array(1, $account->currency_id, $actualExchangeRate, $transaction->getAmount());
         }
 
+        $correctedActualExchangeRate = $actualExchangeRate;
+        $correctedInvoiceExchangeRate = $invoiceExchangeRate;
+        // we need to set different exchange rate if incomming payment is in EUR
+        if($transaction->getCurrency() == 'EUR') {
+            $exchangeRate = Currency::where('code', 'EUR')->first()->exchange_rate;
+            $correctedActualExchangeRate = (1/$exchangeRate)/(1/$actualExchangeRate);
+            $correctedInvoiceExchangeRate = (1/$exchangeRate)/(1/$invoiceExchangeRate);
+        }
+
         // convert amount
-        $amount = $transaction->getAmount() * $actualExchangeRate;
+        $amount = $transaction->getAmount() * $correctedActualExchangeRate;
 
         // received amount is not equal to balance
         // calculate allowed diff from total amount
         // get percentual diff from exchange rates + add small 3%
-        $percentualDiff = abs(1 - $actualExchangeRate / $invoiceExchangeRate) + 0.03;
+        $percentualDiff = abs(1 - $correctedActualExchangeRate / $correctedInvoiceExchangeRate) + 0.03;
         $allowedDiff    = $amount * $percentualDiff;
 
         // is withing allowed diff
