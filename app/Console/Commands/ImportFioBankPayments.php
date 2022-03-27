@@ -172,6 +172,9 @@ class ImportFioBankPayments extends Command
 
         // skip intra company transactions
         if($transaction->getSenderAccountNumber() == '2301849269' && $transaction->getSenderBankCode() == '2010') return null;
+        if($transaction->getSenderAccountNumber() == '2501849271' && $transaction->getSenderBankCode() == '2010') return null;
+        if($transaction->getSenderAccountNumber() == '2501264505' && $transaction->getSenderBankCode() == '2010') return null;
+        if($transaction->getSenderAccountNumber() == '2400330446' && $transaction->getSenderBankCode() == '2010') return null;
 
         // skip payments done via payment gateway
         if(strpos($transaction->getComment(), 'Zaúčtování POS terminálů') === 0) return null;
