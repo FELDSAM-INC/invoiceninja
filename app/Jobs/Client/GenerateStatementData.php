@@ -53,6 +53,10 @@ class GenerateStatementData
 
         $invoices = Invoice::with(['client'])
             ->invoices()
+            ->orWhere(function ($query) {
+                $query->quotes()
+                    ->whereNull('quote_invoice_id');
+            })
             ->whereClientId($this->client->id)
             ->whereIsPublic(true)
             ->withArchived()
